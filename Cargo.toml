@@ -1,0 +1,13 @@
+[package]
+name = "cgen-rs"
+version = "0.1.0"
+license = "MIT"
+authors = ["Reto Achermann <achreto@gmail.com>"]
+description = "Library for generate C code"
+documentation = "https://docs.rs/cgen-rs/"
+homepage = "https://github.com/achreto/cgen-rs"
+repository = "https://github.com/achreto/cgen-rs"
+readme = "README.md"
+edition = "2021"
+
+[dependencies]

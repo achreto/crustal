@@ -29,7 +29,7 @@
 
 use std::fmt::{self, Write};
 
-use crate::{Comment, Doc, Enum, Formatter, Macro, Struct};
+use crate::{Comment, Doc, Enum, Formatter, Macro, Struct, Type, Variable};
 
 /// defines an item of the scope
 #[derive(Debug, Clone)]
@@ -38,6 +38,7 @@ pub enum Item {
     Comment(Comment),
     Enum(Enum),
     Struct(Struct),
+    Variable(Variable),
 }
 
 /// defines the scope of the generated C code
@@ -148,6 +149,22 @@ impl Scope {
         self
     }
 
+    /// adds a new variable to the scope
+    pub fn new_variable(&mut self, name: &str, ty: Type) -> &mut Variable {
+        self.push_variable(Variable::new(name, ty));
+
+        match *self.items.last_mut().unwrap() {
+            Item::Variable(ref mut v) => v,
+            _ => unreachable!(),
+        }
+    }
+
+    /// pushes a variable to the scope
+    pub fn push_variable(&mut self, mac: Variable) -> &mut Self {
+        self.items.push(Item::Variable(mac));
+        self
+    }
+
     /// Formats the scope using the given formatter.
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         // documentation and license information
@@ -163,6 +180,7 @@ impl Scope {
                 Item::Struct(v) => v.fmt(fmt)?,
                 Item::Macro(v) => v.fmt(fmt)?,
                 Item::Enum(v) => v.fmt(fmt)?,
+                Item::Variable(v) => v.fmt(fmt)?,
             }
         }
 

@@ -29,11 +29,12 @@
 
 use std::fmt::{self, Write};
 
-use crate::{Comment, Doc, Enum, Formatter, Struct};
+use crate::{Comment, Doc, Enum, Formatter, Macro, Struct};
 
 /// defines an item of the scope
 #[derive(Debug, Clone)]
 pub enum Item {
+    Macro(Macro),
     Comment(Comment),
     Enum(Enum),
     Struct(Struct),
@@ -115,7 +116,7 @@ impl Scope {
         self
     }
 
-    /// adds a new include to the scope
+    /// adds a new struct to the scope
     pub fn new_struct(&mut self, name: &str) -> &mut Struct {
         self.push_struct(Struct::new(name));
 
@@ -125,9 +126,25 @@ impl Scope {
         }
     }
 
-    /// pushes a include to the scope
+    /// pushes a struct to the scope
     pub fn push_struct(&mut self, inc: Struct) -> &mut Self {
         self.items.push(Item::Struct(inc));
+        self
+    }
+
+    /// adds a new macro to the scope
+    pub fn new_macro(&mut self, name: &str) -> &mut Macro {
+        self.push_macro(Macro::new(name));
+
+        match *self.items.last_mut().unwrap() {
+            Item::Macro(ref mut v) => v,
+            _ => unreachable!(),
+        }
+    }
+
+    /// pushes a macro to the scope
+    pub fn push_macro(&mut self, mac: Macro) -> &mut Self {
+        self.items.push(Item::Macro(mac));
         self
     }
 
@@ -144,6 +161,7 @@ impl Scope {
             match &item {
                 Item::Comment(v) => v.fmt(fmt)?,
                 Item::Struct(v) => v.fmt(fmt)?,
+                Item::Macro(v) => v.fmt(fmt)?,
                 Item::Enum(v) => v.fmt(fmt)?,
             }
         }

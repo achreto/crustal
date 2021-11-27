@@ -36,6 +36,7 @@ mod variable;
 mod variant;
 
 mod r#enum;
+mod r#macro;
 mod r#struct;
 mod r#type;
 
@@ -43,6 +44,7 @@ pub use comment::Comment;
 pub use doc::Doc;
 pub use field::Field;
 use formatter::Formatter;
+pub use r#macro::Macro;
 pub use scope::Scope;
 pub use variable::Variable;
 pub use variant::Variant;

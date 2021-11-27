@@ -29,9 +29,13 @@
 
 mod doc;
 mod formatter;
+mod variant;
 
+mod r#enum;
 mod r#type;
 
 pub use doc::Doc;
+pub use variant::Variant;
 
+pub use r#enum::Enum;
 pub use r#type::Type;

@@ -23,9 +23,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//! # Documentation
+//! # Variant
 //!
-//! The documentation modules provides a way to add documentation comments to the
+//! The variant modules provides a way to add enumeration variants to the
 //! generated code.
 
 use std::fmt::{self, Write};

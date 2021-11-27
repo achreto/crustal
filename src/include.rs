@@ -23,89 +23,71 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//! # Macro
+//! # Include
 //!
-//! The macro module provides functionality to define pre-processor macros.
+//! The include module provides mechanisms to specify included headers
 
 use std::fmt::{self, Write};
 
-use crate::doc::Doc;
 use crate::formatter::Formatter;
 
 /// Defines an struct field
 #[derive(Debug, Clone)]
-pub struct Macro {
+pub struct Include {
     /// The name of the define
-    name: String,
+    path: String,
 
-    /// the arguments of the macro
-    args: Vec<String>,
-
-    /// the value of the define
-    value: Option<String>,
+    /// whether this is a system include
+    is_system: bool,
 
     /// The documentation comment of the macro
-    doc: Option<Doc>,
+    doc: Option<String>,
 }
 
-impl Macro {
-    /// Creates a new `Macro`
-    pub fn new(name: &str) -> Self {
-        Macro {
-            name: String::from(name),
-            args: Vec::new(),
-            value: None,
+impl Include {
+    /// Creates a new `Include` struct for project headers
+    pub fn new(path: &str) -> Self {
+        Include {
+            path: String::from(path),
+            is_system: false,
+            doc: None,
+        }
+    }
+
+    /// Creates a new `Include` for system headers
+    pub fn new_system(path: &str) -> Self {
+        Include {
+            path: String::from(path),
+            is_system: true,
             doc: None,
         }
     }
 
     /// adds a string to the documentation comment to the variant
     pub fn doc_str(&mut self, doc: &str) -> &mut Self {
-        if let Some(d) = &mut self.doc {
-            d.add_text(doc);
-        } else {
-            self.doc = Some(Doc::with_str(doc));
-        }
-        self
-    }
-
-    /// adds a documetnation comment to the variant
-    pub fn doc(&mut self, doc: Doc) -> &mut Self {
-        self.doc = Some(doc);
+        self.doc = Some(String::from(doc));
         self
     }
 
     /// adds a new argument to the macro
-    pub fn new_arg(&mut self, arg: &str) -> &mut Self {
-        self.args.push(String::from(arg));
-        self
-    }
-
-    /// adds the value to the macro
-    pub fn new_value(&mut self, value: &str) -> &mut Self {
-        self.value = Some(String::from(value));
+    pub fn system(&mut self, arg: bool) -> &mut Self {
+        self.is_system = arg;
         self
     }
 
     /// Formats the variant using the given formatter.
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
-        if let Some(ref docs) = self.doc {
-            docs.fmt(fmt)?;
-        }
-        write!(fmt, "#define {}", self.name)?;
-        if !self.args.is_empty() {
-            let args = self.args.join(",");
-            write!(fmt, "({})", args)?;
+        write!(fmt, "#include ")?;
+        if self.is_system {
+            write!(fmt, "<{}>", self.path)?;
+        } else {
+            write!(fmt, "\"{}\"", self.path)?;
         }
 
-        if let Some(v) = &self.value {
-            fmt.indent(|f| {
-                for l in v.lines() {
-                    writeln!(f, "{}\\", l)?;
-                }
-                Ok(())
-            })?;
+        if let Some(d) = &self.doc {
+            writeln!(fmt, "  // {}", d)
+        } else {
+            writeln!(fmt)
         }
-        writeln!(fmt)
     }
 }

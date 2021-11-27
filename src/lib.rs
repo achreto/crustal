@@ -26,3 +26,7 @@
 //! # Cgen Rust Library
 //!
 //! The Cgen Rust library provides a builder API for generating C code.
+
+mod doc;
+
+pub use doc::Doc;

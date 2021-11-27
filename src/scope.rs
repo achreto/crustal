@@ -26,9 +26,10 @@
 //! # Scope
 //!
 //! This module defines the scope that contains definitions, functions, ...
-//!
 
-use crate::{Comment, Doc, Enum, Struct};
+use std::fmt::{self, Write};
+
+use crate::{Comment, Doc, Enum, Formatter, Struct};
 
 /// defines an item of the scope
 #[derive(Debug, Clone)]
@@ -128,5 +129,46 @@ impl Scope {
     pub fn push_struct(&mut self, inc: Struct) -> &mut Self {
         self.items.push(Item::Struct(inc));
         self
+    }
+
+    /// Formats the scope using the given formatter.
+    pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
+        // documentation and license information
+        self.doc.as_ref().map(|d| d.fmt(fmt));
+
+        for (i, item) in self.items.iter().enumerate() {
+            if i != 0 {
+                writeln!(fmt)?;
+            }
+
+            match &item {
+                Item::Comment(v) => v.fmt(fmt)?,
+                Item::Struct(v) => v.fmt(fmt)?,
+                Item::Enum(v) => v.fmt(fmt)?,
+            }
+        }
+
+        Ok(())
+    }
+}
+
+impl Default for Scope {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl fmt::Display for Scope {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut ret = String::new();
+
+        self.fmt(&mut Formatter::new(&mut ret)).unwrap();
+
+        // Remove the trailing newline
+        if ret.as_bytes().last() == Some(&b'\n') {
+            ret.pop();
+        }
+
+        write!(f, "{}", ret)
     }
 }

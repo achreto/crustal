@@ -52,6 +52,10 @@ impl<'a> Formatter<'a> {
         Self { dst, spaces: 0 }
     }
 
+    pub fn get_indent(&self) -> usize {
+        self.spaces
+    }
+
     /// Wraps the given function in a a C block. { ...}
     pub fn block<F>(&mut self, f: F) -> fmt::Result
     where

@@ -30,5 +30,8 @@
 mod doc;
 mod formatter;
 
+mod r#type;
 
 pub use doc::Doc;
+
+pub use r#type::Type;

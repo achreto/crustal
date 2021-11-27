@@ -31,6 +31,7 @@ mod comment;
 mod doc;
 mod field;
 mod formatter;
+mod scope;
 mod variant;
 
 mod r#enum;
@@ -41,6 +42,7 @@ pub use comment::Comment;
 pub use doc::Doc;
 pub use field::Field;
 use formatter::Formatter;
+pub use scope::Scope;
 pub use variant::Variant;
 
 pub use r#enum::Enum;

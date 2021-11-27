@@ -28,14 +28,19 @@
 //! The Cgen Rust library provides a builder API for generating C code.
 
 mod doc;
+mod field;
 mod formatter;
 mod variant;
 
 mod r#enum;
+mod r#struct;
 mod r#type;
 
 pub use doc::Doc;
+pub use field::Field;
+use formatter::Formatter;
 pub use variant::Variant;
 
 pub use r#enum::Enum;
+pub use r#struct::Struct;
 pub use r#type::Type;

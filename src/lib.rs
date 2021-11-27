@@ -32,6 +32,7 @@ mod doc;
 mod field;
 mod formatter;
 mod scope;
+mod variable;
 mod variant;
 
 mod r#enum;
@@ -43,6 +44,7 @@ pub use doc::Doc;
 pub use field::Field;
 use formatter::Formatter;
 pub use scope::Scope;
+pub use variable::Variable;
 pub use variant::Variant;
 
 pub use r#enum::Enum;

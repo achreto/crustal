@@ -27,32 +27,50 @@
 //!
 //! The Cgen Rust library provides a builder API for generating C code.
 
-mod comment;
-mod doc;
-mod field;
-mod formatter;
-mod ifdef;
-mod include;
-mod scope;
-mod variable;
-mod variant;
+use std::fmt::{self, Write};
 
-mod r#enum;
-mod r#macro;
-mod r#struct;
-mod r#type;
+use crate::{Formatter, Scope};
 
-pub use comment::Comment;
-pub use doc::Doc;
-pub use field::Field;
-use formatter::Formatter;
-pub use ifdef::IfDef;
-pub use include::Include;
-pub use r#macro::Macro;
-pub use scope::Scope;
-pub use variable::Variable;
-pub use variant::Variant;
+/// defines a comment block
+#[derive(Debug, Clone)]
+pub struct IfDef {
+    /// the symbol to be defined
+    sym: String,
 
-pub use r#enum::Enum;
-pub use r#struct::Struct;
-pub use r#type::Type;
+    /// the then branch
+    then: Scope,
+
+    /// the other branch
+    other: Option<Scope>,
+}
+
+impl IfDef {
+    /// creates a new comment
+    pub fn new(sym: &str) -> Self {
+        Self {
+            sym: sym.to_string(),
+            then: Scope::new(),
+            other: None,
+        }
+    }
+
+    /// obtains the scope to the then block
+    pub fn then_scope(&mut self) -> &mut Scope {
+        &mut self.then
+    }
+
+    /// obtains the scope to the other block
+    pub fn other_scope(&mut self) -> &mut Scope {
+        &mut self.then
+    }
+
+    // formats the ifdef block
+    pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
+        writeln!(fmt, "#ifdef {}", self.sym)?;
+        self.then.fmt(fmt)?;
+        if let Some(b) = &self.other {
+            b.fmt(fmt)?;
+        }
+        writeln!(fmt, "#endif // {}", self.sym)
+    }
+}

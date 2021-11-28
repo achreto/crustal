@@ -29,14 +29,15 @@
 
 use std::fmt::{self, Write};
 
-use crate::{Comment, Doc, Enum, Formatter, Macro, Struct, Type, Variable};
+use crate::{Comment, Doc, Enum, Formatter, IfDef, Macro, Struct, Type, Variable};
 
 /// defines an item of the scope
 #[derive(Debug, Clone)]
 pub enum Item {
-    Macro(Macro),
     Comment(Comment),
     Enum(Enum),
+    IfDef(IfDef),
+    Macro(Macro),
     Struct(Struct),
     Variable(Variable),
 }
@@ -165,6 +166,22 @@ impl Scope {
         self
     }
 
+    /// adds a new variable to the scope
+    pub fn new_ifdef(&mut self, sym: &str) -> &mut IfDef {
+        self.push_ifdef(IfDef::new(sym));
+
+        match *self.items.last_mut().unwrap() {
+            Item::IfDef(ref mut v) => v,
+            _ => unreachable!(),
+        }
+    }
+
+    /// pushes a variable to the scope
+    pub fn push_ifdef(&mut self, ifdef: IfDef) -> &mut Self {
+        self.items.push(Item::IfDef(ifdef));
+        self
+    }
+
     /// Formats the scope using the given formatter.
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         // documentation and license information
@@ -181,6 +198,7 @@ impl Scope {
                 Item::Macro(v) => v.fmt(fmt)?,
                 Item::Enum(v) => v.fmt(fmt)?,
                 Item::Variable(v) => v.fmt(fmt)?,
+                Item::IfDef(v) => v.fmt(fmt)?,
             }
         }
 

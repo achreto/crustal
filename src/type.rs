@@ -27,7 +27,7 @@
 //!
 //! This module provides functionality to express types in C/C++ programs.
 
-use std::fmt::{self, Write};
+use std::fmt::{self, Display, Write};
 
 use crate::formatter::Formatter;
 
@@ -66,13 +66,13 @@ pub enum BaseType {
     /// a character
     Char,
     /// an unsigned one byte integer. (`uint8_t`)
-    Unit8,
+    UInt8,
     /// an unsigned two byte integer. (`uint16_t`)
-    Uint16,
+    UInt16,
     /// an unsigned four byte integer. (`uint32_t`)
-    Uint32,
+    UInt32,
     /// an unsigned eight byte integer. (`uint64_t`)
-    Uint64,
+    UInt64,
     /// a signed one byte integer. (`int8_t`)
     Int8,
     /// a signed two byte integer. (`int16_t`)
@@ -84,7 +84,7 @@ pub enum BaseType {
     /// a size type (`size_t`)
     Size,
     /// a pointer value (`uintptr_t`)
-    UintPtr,
+    UIntPtr,
     /// a boolean value (`bool`)
     Bool,
     /// an enumeration type `enum STRING`
@@ -129,16 +129,16 @@ impl BaseType {
             Double => write!(fmt, "double"),
             Float => write!(fmt, "float"),
             Char => write!(fmt, "char"),
-            Unit8 => write!(fmt, "uint8_t"),
-            Uint16 => write!(fmt, "uint16_t"),
-            Uint32 => write!(fmt, "uint32_t"),
-            Uint64 => write!(fmt, "uint64_t"),
+            UInt8 => write!(fmt, "uint8_t"),
+            UInt16 => write!(fmt, "uint16_t"),
+            UInt32 => write!(fmt, "uint32_t"),
+            UInt64 => write!(fmt, "uint64_t"),
             Int8 => write!(fmt, "int8_t"),
             Int16 => write!(fmt, "int16_t"),
             Int32 => write!(fmt, "int32_t"),
             Int64 => write!(fmt, "int64_t"),
             Size => write!(fmt, "size_t"),
-            UintPtr => write!(fmt, "uintptr_t"),
+            UIntPtr => write!(fmt, "uintptr_t"),
             Bool => write!(fmt, "bool"),
             Enum(s) => write!(fmt, "enum {}", s),
             Struct(s) => write!(fmt, "struct {}", s),
@@ -160,9 +160,9 @@ impl TypeModifier {
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         use TypeModifier::*;
         match self {
-            Ptr => write!(fmt, "* "),
-            Volatile => write!(fmt, "volatile "),
-            Const => write!(fmt, "const "),
+            Ptr => write!(fmt, " *"),
+            Volatile => write!(fmt, " volatile"),
+            Const => write!(fmt, " const"),
         }
     }
 }
@@ -178,12 +178,45 @@ impl Type {
         }
     }
 
+
+    /// create a new type from by taking a pointer of it
+    ///
+    /// # Example
+    ///
+    /// `int` => `int *`
+    pub fn from_ptr(&mut self) -> Self {
+        let mut n = self.clone();
+        n.mods.push(TypeModifier::Ptr);
+        n
+    }
+
+    /// create a new type by it const
+    ///
+    /// # Example
+    ///
+    /// `int *` => `int * const`
+    pub fn from_const(&mut self) -> Self {
+        let mut n = self.clone();
+        n.mods.push(TypeModifier::Const);
+        n
+    }
+
+    /// create a new type by making it volatile
+    ///
+    /// # Example
+    ///
+    /// `int *` => `int * volatile`
+    pub fn from_volatile(&mut self) -> &mut Self {
+        self.mods.push(TypeModifier::Volatile);
+        self
+    }
+
     /// sets the type of the object to be volatile
     ///
     /// # Example
     ///
     /// `int *` => `volatile int *`
-    pub fn set_volatile(&mut self, val: bool) -> &mut Self {
+    pub fn volatile_value(&mut self, val: bool) -> &mut Self {
         self.is_volatile = val;
         if val {
             self.is_const = false;
@@ -196,7 +229,7 @@ impl Type {
     /// # Example
     ///
     /// `int *` => `const int *`
-    pub fn set_const(&mut self, val: bool) -> &mut Self {
+    pub fn const_value(&mut self, val: bool) -> &mut Self {
         self.is_const = val;
         if val {
             self.is_volatile = false;
@@ -204,32 +237,32 @@ impl Type {
         self
     }
 
-    /// adds a pointer type of the current type
+    /// makes the current type a pointer type
     ///
     /// # Example
     ///
     /// `int` => `int *`
-    pub fn ptr_of(&mut self) -> &mut Self {
+    pub fn pointer(&mut self) -> &mut Self {
         self.mods.push(TypeModifier::Ptr);
         self
     }
 
-    /// adds a const modifier to the type
+    /// makes the current type a const type
     ///
     /// # Example
     ///
     /// `int *` => `int * const`
-    pub fn const_of(&mut self) -> &mut Self {
+    pub fn constant(&mut self) -> &mut Self {
         self.mods.push(TypeModifier::Const);
         self
     }
 
-    /// adds a volatile modifier to the type
+    /// makes the current  type volatile
     ///
     /// # Example
     ///
     /// `int *` => `int * volatile`
-    pub fn volatile_of(&mut self) -> &mut Self {
+    pub fn volatile(&mut self) -> &mut Self {
         self.mods.push(TypeModifier::Volatile);
         self
     }
@@ -251,5 +284,20 @@ impl Type {
         }
 
         Ok(())
+    }
+}
+
+impl Display for Type {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut ret = String::new();
+
+        self.fmt(&mut Formatter::new(&mut ret)).unwrap();
+
+        // Remove the trailing newline
+        if ret.as_bytes().last() == Some(&b'\n') {
+            ret.pop();
+        }
+
+        write!(f, "{}", ret)
     }
 }

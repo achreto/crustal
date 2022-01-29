@@ -1,4 +1,4 @@
-// cgen-rs
+// C/C++ Code Generator For Rust
 //
 //
 // MIT License
@@ -23,15 +23,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//! # Field
+//! # Struct Field
 //!
-//! The field module provides a way to add fields to a struct
+//! The field module provides functionality to express struct fields as in C.
+//! Note, for data members in classes see [Attribute]
 
-use std::fmt::{self, Write};
+use std::fmt::{self, Display, Write};
 
-use crate::doc::Doc;
-use crate::formatter::Formatter;
-use crate::r#type::Type;
+use crate::{Doc, Formatter, Type};
 
 /// Defines an struct field
 #[derive(Debug, Clone)]
@@ -50,7 +49,7 @@ pub struct Field {
 }
 
 impl Field {
-    /// Creates a new `Variant`
+    /// Creates a new `Field`
     pub fn new(name: &str, ty: Type) -> Self {
         Field {
             name: String::from(name),
@@ -60,8 +59,23 @@ impl Field {
         }
     }
 
+    /// obtains the name of the field
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    /// obtains the type from the field
+    pub fn as_type(&self) -> Type {
+        self.ty.clone()
+    }
+
+    /// returns a reference to the type of the field
+    pub fn as_type_ref(&self) -> &Type {
+        &self.ty
+    }
+
     /// adds a string to the documentation comment to the variant
-    pub fn doc_str(&mut self, doc: &str) -> &mut Self {
+    pub fn push_doc_str(&mut self, doc: &str) -> &mut Self {
         if let Some(d) = &mut self.doc {
             d.add_text(doc);
         } else {
@@ -71,13 +85,13 @@ impl Field {
     }
 
     /// adds a documetnation comment to the variant
-    pub fn doc(&mut self, doc: Doc) -> &mut Self {
+    pub fn set_doc(&mut self, doc: Doc) -> &mut Self {
         self.doc = Some(doc);
         self
     }
 
-    /// sets the width of the bitfield
-    pub fn width(&mut self, width: u8) -> &mut Self {
+    /// sets the bitfield width
+    pub fn bitfield_width(&mut self, width: u8) -> &mut Self {
         self.width = Some(width);
         self
     }
@@ -92,6 +106,14 @@ impl Field {
         if let Some(w) = self.width {
             write!(fmt, " : {}", w)?;
         }
-        writeln!(fmt)
+        writeln!(fmt, ";")
+    }
+}
+
+impl Display for Field {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut ret = String::new();
+        self.fmt(&mut Formatter::new(&mut ret)).unwrap();
+        write!(f, "{}", ret)
     }
 }

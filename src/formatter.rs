@@ -67,7 +67,7 @@ impl<'a> Formatter<'a> {
 
         writeln!(self, "{{")?;
         self.indent(f)?;
-        writeln!(self, "}}")?;
+        write!(self, "}}")?;
         Ok(())
     }
 

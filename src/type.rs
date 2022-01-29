@@ -178,6 +178,10 @@ impl Type {
         }
     }
 
+    /// obtainst the base type of the type
+    pub fn basetype(self) -> BaseType {
+        self.base
+    }
 
     /// create a new type from by taking a pointer of it
     ///
@@ -290,14 +294,7 @@ impl Type {
 impl Display for Type {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut ret = String::new();
-
         self.fmt(&mut Formatter::new(&mut ret)).unwrap();
-
-        // Remove the trailing newline
-        if ret.as_bytes().last() == Some(&b'\n') {
-            ret.pop();
-        }
-
         write!(f, "{}", ret)
     }
 }

@@ -128,8 +128,11 @@ fn types__modifiers() {
     assert_eq!(t.to_string(), "const int32_t * const");
 
     let mut t = Type::new(BaseType::Int32);
-    t.const_value(true).pointer().constant().pointer().pointer().constant();
+    t.const_value(true)
+        .pointer()
+        .constant()
+        .pointer()
+        .pointer()
+        .constant();
     assert_eq!(t.to_string(), "const int32_t * const * * const");
 }
-
-

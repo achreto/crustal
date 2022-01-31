@@ -30,7 +30,7 @@
 
 use std::fmt::{self, Display, Write};
 
-use crate::{BaseType, Doc, Field, Formatter, Param, Stmt, Type, Variable};
+use crate::{Doc, Formatter, Param, Stmt, Type};
 
 /// defines a C function
 pub struct Function {

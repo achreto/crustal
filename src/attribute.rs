@@ -1,9 +1,9 @@
-// cgen-rs
+// C/C++ Code Generator For Rust
 //
 //
 // MIT License
 //
-// Copyright (c) 2021 Reto Achermann
+// Copyright (c) 2022 Reto Achermann (The University of British Columbia)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,15 +25,14 @@
 
 //! # Attribute
 //!
-//! The field module provides a way to add fields to a struct
+//! The attribute module provides functionality to express C++ class attributes
+//! (data members) with a given type and name.
 
 use std::fmt::{self, Write};
 
-use crate::doc::Doc;
-use crate::formatter::Formatter;
-use crate::r#type::{Access, Type};
+use crate::{Doc, Formatter, Type};
 
-/// Defines a class attribute member
+/// Defines a C++ class attribute (data member)
 #[derive(Debug, Clone)]
 pub struct Attribute {
     /// The name of the attribute
@@ -42,26 +41,39 @@ pub struct Attribute {
     /// The type of the field
     ty: Type,
 
-    /// the access modifier
-    access: Access,
+    /// the number of bits in the bitfield
+    width: Option<u8>,
+
+    /// the value if the field is constant
+    value: Option<String>,
+
+    /// the attribute is static (C++)
+    is_static: bool,
 
     /// The documentation comment of the class attribute
     doc: Option<Doc>,
 }
 
 impl Attribute {
-    /// Creates a new `Attribute`
+    /// Creates a new `Attribute` with a given `name` and `type`.
     pub fn new(name: &str, ty: Type) -> Self {
         Attribute {
             name: String::from(name),
             ty,
-            access: Access::Private,
+            width: None,
+            value: None,
+            is_static: false,
             doc: None,
         }
     }
 
+    /// obtain a reference to the attribute's type
+    pub fn get_type_ref(&self) -> &Type {
+        &self.ty
+    }
+
     /// adds a string to the documentation comment to the attribute
-    pub fn doc_str(&mut self, doc: &str) -> &mut Self {
+    pub fn push_doc_str(&mut self, doc: &str) -> &mut Self {
         if let Some(d) = &mut self.doc {
             d.add_text(doc);
         } else {
@@ -70,21 +82,33 @@ impl Attribute {
         self
     }
 
-    /// adds a documetnation comment to the attribute
-    pub fn doc(&mut self, doc: Doc) -> &mut Self {
+    /// sets the documentation comment of the attribute
+    pub fn set_doc(&mut self, doc: Doc) -> &mut Self {
         self.doc = Some(doc);
         self
     }
 
     /// sets the width of the bitfield
-    pub fn set_public(&mut self) -> &mut Self {
-        self.access = Access::Public;
+    pub fn set_bitfield_width(&mut self, width: u8) -> &mut Self {
+        self.width = Some(width);
         self
     }
 
-    /// sets the width of the bitfield
-    pub fn set_protected(&mut self) -> &mut Self {
-        self.access = Access::Public;
+    /// sets the field to be static
+    pub fn set_static(&mut self, val: bool) -> &mut Self {
+        self.is_static = val;
+        self
+    }
+
+    /// sets the field to be constant
+    pub fn set_const(&mut self, val: bool) -> &mut Self {
+        self.ty.const_value(val);
+        self
+    }
+
+    /// sets the field to be volatile
+    pub fn set_volatile(&mut self, val: bool) -> &mut Self {
+        self.ty.volatile_value(val);
         self
     }
 
@@ -93,7 +117,6 @@ impl Attribute {
         if let Some(ref docs) = self.doc {
             docs.fmt(fmt)?;
         }
-        self.access.fmt(fmt)?;
         self.ty.fmt(fmt)?;
         writeln!(fmt, " {};", self.name)
     }

@@ -92,7 +92,10 @@ impl Field {
 
     /// sets the bitfield width
     pub fn bitfield_width(&mut self, width: u8) -> &mut Self {
-        self.width = Some(width);
+        // only allow this for integer types
+        if self.ty.is_integer() {
+            self.width = Some(width);
+        }
         self
     }
 

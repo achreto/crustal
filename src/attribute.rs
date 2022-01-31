@@ -38,13 +38,13 @@ pub struct Attribute {
     /// The name of the attribute
     name: String,
 
-    /// The type of the field
+    /// The type of the attribute
     ty: Type,
 
-    /// the number of bits in the bitfield
+    /// the number of bits in the bitattribute
     width: Option<u8>,
 
-    /// the value if the field is constant
+    /// the value if the attribute is constant
     value: Option<String>,
 
     /// the attribute is static (C++)
@@ -67,8 +67,18 @@ impl Attribute {
         }
     }
 
-    /// obtain a reference to the attribute's type
-    pub fn get_type_ref(&self) -> &Type {
+    /// obtains a string reference to the name of the attribute
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    /// obtains the type from the attribute
+    pub fn as_type(&self) -> Type {
+        self.ty.clone()
+    }
+
+    /// returns a reference to the type of the attribute
+    pub fn as_type_ref(&self) -> &Type {
         &self.ty
     }
 
@@ -88,27 +98,24 @@ impl Attribute {
         self
     }
 
-    /// sets the width of the bitfield
-    pub fn set_bitfield_width(&mut self, width: u8) -> &mut Self {
-        self.width = Some(width);
+    /// sets the width of the bitattribute
+    pub fn bitfield_width(&mut self, width: u8) -> &mut Self {
+        // only allow this for integer types
+        if self.ty.is_integer() {
+            self.width = Some(width);
+        }
         self
     }
 
-    /// sets the field to be static
+    /// sets the attribute to be static
     pub fn set_static(&mut self, val: bool) -> &mut Self {
         self.is_static = val;
         self
     }
 
-    /// sets the field to be constant
-    pub fn set_const(&mut self, val: bool) -> &mut Self {
-        self.ty.const_value(val);
-        self
-    }
-
-    /// sets the field to be volatile
-    pub fn set_volatile(&mut self, val: bool) -> &mut Self {
-        self.ty.volatile_value(val);
+    /// sets the default value of the attribute
+    pub fn set_value_raw(&mut self, val: &str) -> &mut Self {
+        self.value = Some(String::from(val));
         self
     }
 
@@ -117,7 +124,22 @@ impl Attribute {
         if let Some(ref docs) = self.doc {
             docs.fmt(fmt)?;
         }
+
+        if self.is_static {
+            write!(fmt, "static ")?;
+        }
+
         self.ty.fmt(fmt)?;
-        writeln!(fmt, " {};", self.name)
+        write!(fmt, " {}", self.name)?;
+        if let Some(w) = self.width {
+            write!(fmt, " : {}", w)?;
+        }
+
+        // do that here, or in the definition?
+        // if Some(v) = &self.value {
+        //     write!(" = {}", v)?;
+        // }
+
+        writeln!(fmt, ";")
     }
 }

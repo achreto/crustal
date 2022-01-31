@@ -49,7 +49,7 @@ pub struct Struct {
 }
 
 impl Struct {
-    /// Returns a new `Enum` instance with the given name.
+    /// Returns a new `Struct` instance with the given name.
     pub fn new(name: &str) -> Self {
         Self {
             name: String::from(name),
@@ -68,13 +68,13 @@ impl Struct {
         Type::new(BaseType::Struct(self.name.clone()))
     }
 
-    /// Adds a new documentation to the enum
+    /// Adds a new documentation to the struct
     pub fn doc(&mut self, doc: Doc) -> &mut Self {
         self.doc = Some(doc);
         self
     }
 
-    /// Adds a new doc string to the enum
+    /// Adds a new doc string to the struct
     pub fn push_doc_str(&mut self, doc: &str) -> &mut Self {
         if let Some(d) = &mut self.doc {
             d.add_text(doc);
@@ -90,7 +90,7 @@ impl Struct {
         self.fields.last_mut().unwrap()
     }
 
-    /// Push a variant to the enum.
+    /// Push a variant to the struct.
     pub fn push_field(&mut self, item: Field) -> &mut Self {
         self.fields.push(item);
         self
@@ -102,7 +102,7 @@ impl Struct {
         self
     }
 
-    /// Formats the enum using the given formatter.
+    /// Formats the struct using the given formatter.
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         if let Some(ref docs) = self.doc {
             docs.fmt(fmt)?;

@@ -51,7 +51,7 @@ pub struct Union {
 }
 
 impl Union {
-    /// Returns a new `Enum` instance with the given name.
+    /// Returns a new `Union` instance with the given name.
     pub fn new(name: &str) -> Self {
         Self {
             name: String::from(name),
@@ -70,13 +70,13 @@ impl Union {
         Type::new(BaseType::Union(self.name.clone()))
     }
 
-    /// Adds a new documentation to the enum
+    /// Adds a new documentation to the union
     pub fn doc(&mut self, doc: Doc) -> &mut Self {
         self.doc = Some(doc);
         self
     }
 
-    /// Adds a new doc string to the enum
+    /// Adds a new doc string to the union
     pub fn push_doc_str(&mut self, doc: &str) -> &mut Self {
         if let Some(d) = &mut self.doc {
             d.add_text(doc);
@@ -92,7 +92,7 @@ impl Union {
         self.fields.last_mut().unwrap()
     }
 
-    /// Push a variant to the enum.
+    /// Push a variant to the union.
     pub fn push_field(&mut self, item: Field) -> &mut Self {
         self.fields.push(item);
         self
@@ -104,7 +104,7 @@ impl Union {
         self
     }
 
-    /// Formats the enum using the given formatter.
+    /// Formats the union using the given formatter.
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         if let Some(ref docs) = self.doc {
             docs.fmt(fmt)?;

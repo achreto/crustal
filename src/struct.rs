@@ -91,13 +91,13 @@ impl Struct {
     }
 
     /// Push a variant to the enum.
-    pub fn push_variant(&mut self, item: Field) -> &mut Self {
+    pub fn push_field(&mut self, item: Field) -> &mut Self {
         self.fields.push(item);
         self
     }
 
     /// adds a new attribute to the struct
-    pub fn new_attribute(&mut self, attr: &str) -> &mut Self {
+    pub fn push_attribute(&mut self, attr: &str) -> &mut Self {
         self.attributes.push(String::from(attr));
         self
     }

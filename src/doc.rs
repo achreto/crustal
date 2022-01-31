@@ -69,13 +69,13 @@ impl Doc {
             let mut end = 0;
 
             for (offset, c) in l.chars().enumerate() {
-                if c == ' ' && (offset - start) > 80 {
+                if c == ' ' && (offset - start) > 90 {
                     res = res.add_line(&l[start..end]);
                     start = end;
                 }
                 end = offset;
             }
-            res = res.add_line(&l[start..end]);
+            res = res.add_line(&l[start..=end]);
         }
         res
     }
@@ -85,7 +85,6 @@ impl Doc {
         for line in &self.docs {
             writeln!(fmt, "/// {}", line)?;
         }
-
         Ok(())
     }
 }

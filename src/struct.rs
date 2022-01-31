@@ -59,6 +59,16 @@ impl Struct {
         }
     }
 
+    /// obtains the declaration for this struct definition
+    pub fn to_decl(&self) -> Self {
+        Self {
+            name: self.name.clone(),
+            fields: Vec::new(),
+            doc: None,
+            attributes: Vec::new(),
+        }
+    }
+
     /// Returns the corresponding type reference for this struct
     ///
     /// # Example
@@ -84,13 +94,13 @@ impl Struct {
         self
     }
 
-    /// creates a new variant with the given name and value
+    /// creates a new field with the given name and value
     pub fn new_field(&mut self, name: &str, ty: Type) -> &mut Field {
         self.fields.push(Field::new(name, ty));
         self.fields.last_mut().unwrap()
     }
 
-    /// Push a variant to the struct.
+    /// Push a field to the struct.
     pub fn push_field(&mut self, item: Field) -> &mut Self {
         self.fields.push(item);
         self

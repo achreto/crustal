@@ -25,17 +25,17 @@
 
 //! # Structs
 //!
-//! This module defines the C struct.
+//! This module defines the C struct. For now, this is just supporting standard
+//! C structs, for C++ structs use the 'class' module.
 
-use std::fmt;
-use std::fmt::Write;
+use std::fmt::{self, Display, Write};
 
-use crate::{Doc, Field, Formatter, Type};
+use crate::{BaseType, Doc, Field, Formatter, Type};
 
 ///defines a struct
 #[derive(Debug, Clone)]
 pub struct Struct {
-    /// the name of the field
+    /// the name of the struct
     name: String,
 
     /// the fields of the struct
@@ -59,6 +59,15 @@ impl Struct {
         }
     }
 
+    /// Returns the corresponding type reference for this struct
+    ///
+    /// # Example
+    ///
+    /// struct Foo {}  => struct Foo;
+    pub fn as_type(&self) -> Type {
+        Type::new(BaseType::Struct(self.name.clone()))
+    }
+
     /// Adds a new documentation to the enum
     pub fn doc(&mut self, doc: Doc) -> &mut Self {
         self.doc = Some(doc);
@@ -66,7 +75,7 @@ impl Struct {
     }
 
     /// Adds a new doc string to the enum
-    pub fn doc_str(&mut self, doc: &str) -> &mut Self {
+    pub fn push_doc_str(&mut self, doc: &str) -> &mut Self {
         if let Some(d) = &mut self.doc {
             d.add_text(doc);
         } else {
@@ -100,17 +109,29 @@ impl Struct {
         }
 
         write!(fmt, "struct {}", self.name)?;
-        fmt.block(|fmt| {
-            for variant in &self.fields {
-                variant.fmt(fmt)?;
-            }
-            Ok(())
-        })?;
 
-        if !self.attributes.is_empty() {
-            write!(fmt, "__attribute__()")?;
+        // consider this as a forward declaration
+        if !self.fields.is_empty() {
+            fmt.block(|fmt| {
+                for field in &self.fields {
+                    field.fmt(fmt)?;
+                }
+                Ok(())
+            })?;
+
+            if !self.attributes.is_empty() {
+                write!(fmt, "__attribute__() // TODO")?;
+            }
         }
 
         writeln!(fmt, ";")
+    }
+}
+
+impl Display for Struct {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut ret = String::new();
+        self.fmt(&mut Formatter::new(&mut ret)).unwrap();
+        write!(f, "{}", ret)
     }
 }

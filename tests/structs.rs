@@ -23,37 +23,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//! # Field Tests
+//! # Struct Tests
 //!
-//! This module exercises the field tests
+//! This module exercises the struct tests
 
 use cgen_rs::*;
 
 #[test]
-fn fields__basics() {
-    let t = Type::new(BaseType::UInt8);
-    assert_eq!(t.to_string(), "uint8_t");
-
-    let f = Field::new("my_field", t);
-    assert_eq!(f.to_string(), "uint8_t my_field;\n");
-}
-
-#[test]
-fn fields__bitfields() {
-    let t = Type::new(BaseType::UInt8);
-    assert_eq!(t.to_string(), "uint8_t");
-
-    let mut f = Field::new("my_field", t);
-    f.bitfield_width(8);
-    assert_eq!(f.to_string(), "uint8_t my_field : 8;\n");
-}
-
-#[test]
-fn fields__docs() {
-    let t = Type::new(BaseType::UInt8);
-    assert_eq!(t.to_string(), "uint8_t");
-
-    let mut f = Field::new("my_field", t);
-    f.push_doc_str("my documentation");
-    assert_eq!(f.to_string(), "/// my documentation\nuint8_t my_field;\n");
+fn struct__test_forward_declaration() {
+    let mut s = Struct::new("my_struct");
+    assert_eq!(s.to_string(), "struct my_struct;\n");
 }

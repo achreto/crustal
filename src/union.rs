@@ -36,7 +36,7 @@ use crate::{BaseType, Doc, Field, Formatter, Type};
 
 ///defines a union
 #[derive(Debug, Clone)]
-pub union Union {
+pub struct Union {
     /// the name of the union
     name: String,
 
@@ -50,7 +50,7 @@ pub union Union {
     attributes: Vec<String>,
 }
 
-impl Struct {
+impl Union {
     /// Returns a new `Enum` instance with the given name.
     pub fn new(name: &str) -> Self {
         Self {
@@ -130,7 +130,7 @@ impl Struct {
     }
 }
 
-impl Display for Struct {
+impl Display for Union {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut ret = String::new();
         self.fmt(&mut Formatter::new(&mut ret)).unwrap();

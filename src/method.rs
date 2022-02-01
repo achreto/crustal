@@ -29,7 +29,7 @@
 
 use std::fmt::{self, Write};
 
-use crate::{Doc, Formatter, Param, Stmt, Type, Visibility};
+use crate::{Doc, Formatter, MethodParam, Stmt, Type, Visibility};
 
 //
 //Default constructor
@@ -50,7 +50,7 @@ pub struct Method {
     doc: Option<Doc>,
 
     /// the method arguments
-    args: Vec<Param>,
+    args: Vec<MethodParam>,
 
     /// the return type of the method
     ret: Type,
@@ -134,7 +134,7 @@ impl Method {
     }
 
     /// adds an argument to the method
-    pub fn add_argument(&mut self, arg: Param) -> &mut Self {
+    pub fn add_argument(&mut self, arg: MethodParam) -> &mut Self {
         self.args.push(arg);
         self
     }

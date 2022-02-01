@@ -30,7 +30,7 @@
 
 use std::fmt::{self, Display, Write};
 
-use crate::{Doc, Formatter, Param, Stmt, Type};
+use crate::{Doc, Formatter, FunctionParam, Stmt, Type};
 
 /// defines a C function
 pub struct Function {
@@ -41,7 +41,7 @@ pub struct Function {
     doc: Option<Doc>,
 
     /// the function arguments
-    params: Vec<Param>,
+    params: Vec<FunctionParam>,
 
     /// the return type of the function
     ret: Type,
@@ -120,19 +120,19 @@ impl Function {
     }
 
     /// creates a new parameter for the function
-    pub fn new_param(&mut self, name: &str, ty: Type) -> &mut Param {
-        self.params.push(Param::new(name, ty));
+    pub fn new_param(&mut self, name: &str, ty: Type) -> &mut FunctionParam {
+        self.params.push(FunctionParam::new(name, ty));
         self.params.last_mut().unwrap()
     }
 
     /// Push a param to the function's parameters
-    pub fn push_param(&mut self, item: Param) -> &mut Self {
+    pub fn push_param(&mut self, item: FunctionParam) -> &mut Self {
         self.params.push(item);
         self
     }
 
     /// obtains the parameter of the function
-    pub fn get_param(&self, idx: usize) -> Option<&Param> {
+    pub fn get_param(&self, idx: usize) -> Option<&FunctionParam> {
         if idx < self.params.len() {
             Some(&self.params[idx])
         } else {
@@ -141,7 +141,7 @@ impl Function {
     }
 
     /// obtains a param by name
-    pub fn get_param_by_name(&self, name: &str) -> Option<&Param> {
+    pub fn get_param_by_name(&self, name: &str) -> Option<&FunctionParam> {
         for p in &self.params {
             if p.name() == name {
                 return Some(p);
@@ -182,6 +182,11 @@ impl Function {
         self
     }
 
+    /// makes the function to be an inline method
+    pub fn inline(&mut self) -> &mut Self {
+        self.set_inline(true)
+    }
+
     /// sets the function to be extern
     ///
     /// # Example
@@ -194,6 +199,11 @@ impl Function {
         }
         self.is_extern = val;
         self
+    }
+
+    /// makes the function to be an inline method
+    pub fn ext(&mut self) -> &mut Self {
+        self.set_extern(true)
     }
 
     /// sets the body for the function

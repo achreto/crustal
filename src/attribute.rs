@@ -30,13 +30,16 @@
 
 use std::fmt::{self, Write};
 
-use crate::{Doc, Formatter, Type};
+use crate::{Doc, Formatter, Type, Visibility};
 
 /// Defines a C++ class attribute (data member)
 #[derive(Debug, Clone)]
 pub struct Attribute {
     /// The name of the attribute
     name: String,
+
+    /// the visibility of the function
+    visibility: Visibility,
 
     /// The type of the attribute
     ty: Type,
@@ -60,6 +63,7 @@ impl Attribute {
         Attribute {
             name: String::from(name),
             ty,
+            visibility: Visibility::Private,
             width: None,
             value: None,
             is_static: false,
@@ -70,6 +74,11 @@ impl Attribute {
     /// obtains a string reference to the name of the attribute
     pub fn name(&self) -> &str {
         &self.name
+    }
+
+    /// returns the visibility of the attribute
+    pub fn visibility(&self) -> &Visibility {
+        &self.visibility
     }
 
     /// obtains the type from the attribute
@@ -107,10 +116,36 @@ impl Attribute {
         self
     }
 
+    /// sets the visibility of the function
+    pub fn set_visibility(&mut self, vis: Visibility) -> &mut Self {
+        self.visibility = vis;
+        self
+    }
+
+    /// sets the visibility to public
+    pub fn public(&mut self) -> &mut Self {
+        self.set_visibility(Visibility::Public)
+    }
+
+    /// sets the visibility to protected
+    pub fn protected(&mut self) -> &mut Self {
+        self.set_visibility(Visibility::Protected)
+    }
+
+    /// sets the visibility to private
+    pub fn private(&mut self) -> &mut Self {
+        self.set_visibility(Visibility::Private)
+    }
+
     /// sets the attribute to be static
     pub fn set_static(&mut self, val: bool) -> &mut Self {
         self.is_static = val;
         self
+    }
+
+    /// sets the attribute to be static
+    pub fn stat(&mut self) -> &mut Self {
+        self.set_static(true)
     }
 
     /// sets the default value of the attribute

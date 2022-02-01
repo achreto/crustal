@@ -82,13 +82,28 @@ impl Attribute {
     }
 
     /// obtains the type from the attribute
-    pub fn as_type(&self) -> Type {
+    pub fn to_type(&self) -> Type {
         self.ty.clone()
     }
 
     /// returns a reference to the type of the attribute
-    pub fn as_type_ref(&self) -> &Type {
+    pub fn as_type(&self) -> &Type {
         &self.ty
+    }
+
+    /// tests if the attribute is private
+    pub fn is_public(&self) -> bool {
+        self.visibility == Visibility::Public
+    }
+
+    /// tests if the attribute is protected
+    pub fn is_protected(&self) -> bool {
+        self.visibility == Visibility::Protected
+    }
+
+    /// tests if the attribute is private
+    pub fn is_private(&self) -> bool {
+        self.visibility == Visibility::Private || self.visibility == Visibility::Default
     }
 
     /// adds a string to the documentation comment to the attribute
@@ -154,8 +169,7 @@ impl Attribute {
         self
     }
 
-    /// Formats the attribute using the given formatter.
-    pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
+    pub fn do_fmt(&self, fmt: &mut Formatter<'_>, decl_only: bool) -> fmt::Result {
         if let Some(ref docs) = self.doc {
             docs.fmt(fmt)?;
         }
@@ -170,11 +184,16 @@ impl Attribute {
             write!(fmt, " : {}", w)?;
         }
 
-        // do that here, or in the definition?
-        // if Some(v) = &self.value {
-        //     write!(" = {}", v)?;
-        // }
-
+        if let Some(v) = &self.value {
+            if !decl_only {
+                write!(fmt, " = {}", v)?;
+            }
+        }
         writeln!(fmt, ";")
+    }
+
+    /// Formats the attribute using the given formatter.
+    pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
+        self.do_fmt(fmt, false)
     }
 }

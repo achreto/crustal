@@ -122,6 +122,21 @@ impl Method {
         self
     }
 
+    /// tests if the method is private
+    pub fn is_public(&self) -> bool {
+        self.visibility == Visibility::Public
+    }
+
+    /// tests if the method is protected
+    pub fn is_protected(&self) -> bool {
+        self.visibility == Visibility::Protected
+    }
+
+    /// tests if the method is private
+    pub fn is_private(&self) -> bool {
+        self.visibility == Visibility::Private || self.visibility == Visibility::Default
+    }
+
     /// sets the visibility to public
     pub fn public(&mut self) -> &mut Self {
         self.set_visibility(Visibility::Public)
@@ -267,7 +282,7 @@ impl Method {
     }
 
     /// Formats the attribute using the given formatter.
-    fn do_fmt(&self, fmt: &mut Formatter<'_>, decl_only: bool) -> fmt::Result {
+    pub fn do_fmt(&self, fmt: &mut Formatter<'_>, decl_only: bool) -> fmt::Result {
         if let Some(ref docs) = self.doc {
             docs.fmt(fmt)?;
         }

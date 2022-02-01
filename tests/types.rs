@@ -30,7 +30,7 @@
 use cgen_rs::*;
 
 #[test]
-fn types__base_types() {
+fn types_base_types() {
     let t = Type::new(BaseType::Void);
     assert_eq!(t.to_string(), "void");
 
@@ -99,7 +99,7 @@ fn types__base_types() {
 }
 
 #[test]
-fn types__base_modifiers() {
+fn types_base_modifiers() {
     let mut t = Type::new(BaseType::Int32);
     t.volatile_value(true);
     assert_eq!(t.to_string(), "volatile int32_t");
@@ -118,7 +118,7 @@ fn types__base_modifiers() {
 }
 
 #[test]
-fn types__modifiers() {
+fn types_modifiers() {
     let mut t = Type::new(BaseType::Int32);
     t.volatile_value(true).pointer();
     assert_eq!(t.to_string(), "volatile int32_t *");

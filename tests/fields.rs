@@ -30,7 +30,7 @@
 use cgen_rs::*;
 
 #[test]
-fn fields__basics() {
+fn test_fields_basics() {
     let t = Type::new(BaseType::UInt8);
     assert_eq!(t.to_string(), "uint8_t");
 
@@ -39,7 +39,7 @@ fn fields__basics() {
 }
 
 #[test]
-fn fields__bitfields() {
+fn test_fields_bitfields() {
     let t = Type::new(BaseType::UInt8);
     assert_eq!(t.to_string(), "uint8_t");
 
@@ -49,7 +49,7 @@ fn fields__bitfields() {
 }
 
 #[test]
-fn fields__docs() {
+fn test_fields_docs() {
     let t = Type::new(BaseType::UInt8);
     assert_eq!(t.to_string(), "uint8_t");
 

@@ -30,7 +30,7 @@
 use cgen_rs::*;
 
 #[test]
-fn struct__test_forward_declaration() {
-    let mut s = Struct::new("my_struct");
+fn test_struct_forward_declaration() {
+    let s = Struct::new("my_struct");
     assert_eq!(s.to_string(), "struct my_struct;\n");
 }

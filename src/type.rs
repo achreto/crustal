@@ -100,7 +100,7 @@ pub enum BaseType {
 }
 
 /// the type modifiers
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum TypeModifier {
     Ptr,
     Volatile,
@@ -153,6 +153,28 @@ impl BaseType {
             TypeDef(s) => write!(fmt, "{}", s),
         }
     }
+
+    /// formats the basetype into the supplied formatter
+    pub fn is_integer(&self) -> bool {
+        use BaseType::*;
+        matches!(
+            self,
+            Char |
+            UInt8  |
+            UInt16 |
+            UInt32 |
+            UInt64 |
+            Int8 |
+            Int16 |
+            Int32 |
+            Int64 |
+            Size |
+            UIntPtr |
+            Bool |
+            // allowing the typedef here
+            TypeDef(_)
+        )
+    }
 }
 
 impl TypeModifier {
@@ -179,8 +201,17 @@ impl Type {
     }
 
     /// obtainst the base type of the type
-    pub fn basetype(self) -> BaseType {
-        self.base
+    pub fn basetype(&self) -> &BaseType {
+        &self.base
+    }
+
+    pub fn is_integer(&self) -> bool {
+        for m in &self.mods {
+            if *m == TypeModifier::Ptr {
+                return false;
+            }
+        }
+        self.base.is_integer()
     }
 
     /// create a new type from by taking a pointer of it

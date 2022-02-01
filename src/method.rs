@@ -235,7 +235,7 @@ impl Method {
     }
 
     /// makes the method to be an static method
-    pub fn stat(&mut self) -> &mut Self {
+    pub fn sstatic(&mut self) -> &mut Self {
         self.set_static(true)
     }
 

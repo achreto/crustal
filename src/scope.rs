@@ -27,7 +27,10 @@
 //!
 //! This module defines the scope that contains definitions, functions, ...
 
+// std includes
 use std::fmt::{self, Write};
+use std::fs;
+use std::path::Path;
 
 use crate::{Comment, Doc, Enum, Formatter, IfDef, Macro, Struct, Type, Variable};
 
@@ -65,7 +68,7 @@ impl Scope {
     }
 
     /// adds a string to the documentation comment to the variant
-    pub fn doc_str(&mut self, doc: &str) -> &mut Self {
+    pub fn push_doc_str(&mut self, doc: &str) -> &mut Self {
         if let Some(d) = &mut self.doc {
             d.add_text(doc);
         } else {
@@ -186,10 +189,10 @@ impl Scope {
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         // documentation and license information
         self.doc.as_ref().map(|d| d.fmt(fmt));
-
+        writeln!(fmt, "\n")?;
         for (i, item) in self.items.iter().enumerate() {
             if i != 0 {
-                writeln!(fmt)?;
+                writeln!(fmt, "\n")?;
             }
 
             match &item {
@@ -203,6 +206,14 @@ impl Scope {
         }
 
         Ok(())
+    }
+
+    pub fn to_file(&self, path: &str) -> std::io::Result<()> {
+        // set the path to the file
+        let file = Path::new(path);
+
+        // write the file, return IOError otherwise
+        fs::write(file, self.to_string().as_bytes())
     }
 }
 

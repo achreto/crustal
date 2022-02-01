@@ -169,6 +169,11 @@ impl Function {
         self
     }
 
+    /// sets the function to be static
+    pub fn sstatic(&mut self) -> &mut Self {
+        self.set_static(true)
+    }
+
     /// sets the function to be inline
     ///
     /// # Example
@@ -202,7 +207,7 @@ impl Function {
     }
 
     /// makes the function to be an inline method
-    pub fn ext(&mut self) -> &mut Self {
+    pub fn eextern(&mut self) -> &mut Self {
         self.set_extern(true)
     }
 

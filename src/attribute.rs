@@ -28,7 +28,7 @@
 //! The attribute module provides functionality to express C++ class attributes
 //! (data members) with a given type and name.
 
-use std::fmt::{self, Write};
+use std::fmt::{self, Display, Write};
 
 use crate::{Doc, Formatter, Type, Visibility};
 
@@ -159,7 +159,7 @@ impl Attribute {
     }
 
     /// sets the attribute to be static
-    pub fn stat(&mut self) -> &mut Self {
+    pub fn sstatic(&mut self) -> &mut Self {
         self.set_static(true)
     }
 
@@ -195,5 +195,13 @@ impl Attribute {
     /// Formats the attribute using the given formatter.
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         self.do_fmt(fmt, false)
+    }
+}
+
+impl Display for Attribute {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut ret = String::new();
+        self.fmt(&mut Formatter::new(&mut ret)).unwrap();
+        write!(f, "{}", ret)
     }
 }

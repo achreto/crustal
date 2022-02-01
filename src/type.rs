@@ -32,7 +32,7 @@ use std::fmt::{self, Display, Write};
 use crate::formatter::Formatter;
 
 /// Represents the visibility for C++ class members
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Visibility {
     /// Members are declared to be public
     Public,
@@ -40,6 +40,8 @@ pub enum Visibility {
     Protected,
     /// Members are declared to be private
     Private,
+    /// the default visibility
+    Default,
 }
 
 impl Visibility {
@@ -47,9 +49,22 @@ impl Visibility {
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         use Visibility::*;
         match self {
-            Public => writeln!(fmt, "public"),
-            Protected => writeln!(fmt, "protected"),
-            Private => writeln!(fmt, "private"),
+            Public => write!(fmt, "public"),
+            Protected => write!(fmt, "protected"),
+            Private => write!(fmt, "private"),
+            Default => Ok(()),
+        }
+    }
+}
+
+impl Display for Visibility {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        use Visibility::*;
+        match self {
+            Public => write!(f, "public"),
+            Protected => write!(f, "protected"),
+            Private => write!(f, "private"),
+            Default => Ok(()),
         }
     }
 }

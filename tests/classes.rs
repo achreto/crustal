@@ -23,9 +23,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//! # Struct Tests
+//! # Classes Tests
 //!
-//! This module exercises the struct tests
+//! This module exercises the classes module
 
 use cgen_rs::*;
 
@@ -34,7 +34,6 @@ fn test_class_empty_def() {
     let s = Class::new("MyClass");
     assert_eq!(s.to_string(), "class MyClass { };\n");
 }
-
 
 #[test]
 fn test_class_inheritance() {

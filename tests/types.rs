@@ -136,3 +136,23 @@ fn types_modifiers() {
         .constant();
     assert_eq!(t.to_string(), "const int32_t * const * * const");
 }
+
+#[test]
+fn types_modifiers_deref() {
+    let mut t = Type::new(BaseType::Int32);
+
+    let t1 = t.from_deref();
+    assert!(t1.is_none());
+
+    t.const_value(true)
+        .pointer()
+        .constant()
+        .pointer()
+        .pointer()
+        .constant();
+    assert_eq!(t.to_string(), "const int32_t * const * * const");
+
+    let t2 = t.from_deref();
+    assert!(!t2.is_none());
+    assert_eq!(t2.unwrap().to_string(), "const int32_t * const *");
+}

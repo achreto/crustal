@@ -129,6 +129,8 @@ pub struct Type {
     base: BaseType,
     /// the type modifiers of the base type
     mods: Vec<TypeModifier>,
+    /// the number of pointers
+    nptr: u8,
     /// whether the type is const
     is_const: bool,
     /// whether the type is volatile
@@ -210,6 +212,7 @@ impl Type {
         Type {
             base,
             mods: Vec::new(),
+            nptr: 0,
             is_volatile: false,
             is_const: false,
         }
@@ -221,10 +224,8 @@ impl Type {
     }
 
     pub fn is_integer(&self) -> bool {
-        for m in &self.mods {
-            if *m == TypeModifier::Ptr {
-                return false;
-            }
+        if self.nptr != 0 {
+            return false;
         }
         self.base.is_integer()
     }
@@ -234,10 +235,40 @@ impl Type {
     /// # Example
     ///
     /// `int` => `int *`
-    pub fn from_ptr(&mut self) -> Self {
+    pub fn from_ptr(&self) -> Self {
+        assert!(self.nptr < 32);
         let mut n = self.clone();
         n.mods.push(TypeModifier::Ptr);
+        n.nptr += 1;
         n
+    }
+
+    /// obtais a new type by dereferencing the pointer type
+    ///
+    /// # Example
+    ///
+    /// `int **` => `int *`
+    pub fn from_deref(&self) -> Option<Self> {
+        if self.nptr == 0 {
+            return None;
+        }
+
+        let mut n = Self::new(self.base.clone());
+        n.is_const = self.is_const;
+        n.is_volatile = self.is_volatile;
+        for m in &self.mods {
+            // add the modifiers and count the pointers
+            // if we hit the number of pointers, and hit
+            // another pointer, return.
+            if *m == TypeModifier::Ptr {
+                if n.nptr == self.nptr - 1 {
+                    return Some(n);
+                }
+                n.nptr += 1;
+            }
+            n.mods.push(*m);
+        }
+        Some(n)
     }
 
     /// create a new type by it const
@@ -293,7 +324,9 @@ impl Type {
     ///
     /// `int` => `int *`
     pub fn pointer(&mut self) -> &mut Self {
+        assert!(self.nptr < 32);
         self.mods.push(TypeModifier::Ptr);
+        self.nptr += 1;
         self
     }
 

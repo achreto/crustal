@@ -73,6 +73,9 @@ pub struct Method {
     /// sets the method to be const
     is_const: bool,
 
+    /// wheter the definition is inside of the class
+    is_inside: bool,
+
     /// the body of the method, a sequence of statements
     body: Vec<Stmt>,
 }
@@ -88,10 +91,11 @@ impl Method {
             ret,
             is_static: false,
             is_inline: false,
-            is_virtual: true,
+            is_virtual: false,
             is_pure: false,
-            is_override: true,
-            is_const: true,
+            is_override: false,
+            is_const: false,
+            is_inside: false,
             body: Vec::new(),
         }
     }
@@ -235,6 +239,17 @@ impl Method {
         self.set_inline(true)
     }
 
+    /// sets the definition localtion of the method
+    pub fn set_inside_def(&mut self, val: bool) -> &mut Self {
+        self.is_inside = val;
+        self
+    }
+
+    /// this method is defined inside
+    pub fn inside_def(&mut self) -> &mut Self {
+        self.set_inline(true)
+    }
+
     /// sets the body for the method
     pub fn set_body(&mut self, body: Vec<Stmt>) -> &mut Self {
         if !body.is_empty() {
@@ -245,14 +260,14 @@ impl Method {
     }
 
     /// pushes a new statement to the method
-    pub fn push_stmt(&mut self, stmt: Stmt) -> &mut Self {
+    pub fn push_stmt(&mut self, stmt: Stmt, decl_only: bool) -> &mut Self {
         self.is_pure = false;
         self.body.push(stmt);
         self
     }
 
     /// Formats the attribute using the given formatter.
-    pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
+    fn do_fmt(&self, fmt: &mut Formatter<'_>, decl_only: bool) -> fmt::Result {
         if let Some(ref docs) = self.doc {
             docs.fmt(fmt)?;
         }
@@ -296,7 +311,9 @@ impl Method {
             return write!(fmt, " = 0;");
         }
 
-        if self.body.is_empty() {
+        // if we want to have the declaration only, then do that,
+        // but only if it's not a inside method or an inline method
+        if self.body.is_empty() || (decl_only && !(self.is_inside || self.is_inline)) {
             return writeln!(fmt, ";");
         }
 
@@ -308,5 +325,24 @@ impl Method {
             Ok(())
         })?;
         write!(fmt, "}}")
+    }
+
+    /// formats the method definition
+    pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
+        self.do_fmt(fmt, false)
+    }
+
+    /// formats the method declaration
+    pub fn fmt_decl(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
+        self.do_fmt(fmt, true)
+    }
+
+    /// formats the method definition
+    pub fn fmt_def(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
+        // inline or inside functions are defined in the declaration
+        if self.is_inline || self.is_inside {
+            return Ok(());
+        }
+        self.do_fmt(fmt, false)
     }
 }

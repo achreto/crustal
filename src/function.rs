@@ -222,8 +222,7 @@ impl Function {
         self
     }
 
-    /// Formats the struct using the given formatter.
-    pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
+    fn do_fmt(&self, fmt: &mut Formatter<'_>, decl_only: bool) -> fmt::Result {
         if let Some(ref docs) = self.doc {
             docs.fmt(fmt)?;
         }
@@ -244,11 +243,15 @@ impl Function {
         self.ret.fmt(fmt)?;
 
         write!(fmt, " {}(", self.name)?;
-        for (i, f) in self.params.iter().enumerate() {
-            if i != 0 {
-                write!(fmt, ", ")?;
+        if self.params.is_empty() {
+            write!(fmt, "void")?;
+        } else {
+            for (i, f) in self.params.iter().enumerate() {
+                if i != 0 {
+                    write!(fmt, ", ")?;
+                }
+                f.fmt(fmt)?;
             }
-            f.fmt(fmt)?;
         }
         write!(fmt, ")")?;
 
@@ -256,8 +259,8 @@ impl Function {
             write!(fmt, "__attribute__() // TODO")?;
         }
 
-        // consider this as a forward declaration
-        if !self.body.is_empty() {
+        // if there is no body, and is inline or we only want the declaration
+        if !self.body.is_empty() && (!decl_only || self.is_inline) {
             fmt.block(|fmt| {
                 for stmt in &self.body {
                     stmt.fmt(fmt)?;
@@ -268,6 +271,25 @@ impl Function {
         } else {
             writeln!(fmt, ";")
         }
+    }
+
+    /// formats the function definitions
+    pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
+        self.do_fmt(fmt, false)
+    }
+
+    /// formats only the function declaration
+    pub fn fmt_decl(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
+        self.do_fmt(fmt, true)
+    }
+
+    /// formats only the function definition
+    pub fn fmt_def(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
+        // inline functions are defined in the declaratin
+        if self.is_inline {
+            return Ok(());
+        }
+        self.do_fmt(fmt, false)
     }
 }
 

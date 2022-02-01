@@ -94,7 +94,7 @@ impl Function {
     }
 
     /// obtains the type for this function
-    pub fn as_type(&self) -> Type {
+    pub fn to_type(&self) -> Type {
         panic!("needs to implement a corresponding type.")
     }
 

@@ -65,12 +65,12 @@ impl Field {
     }
 
     /// obtains the type from the field
-    pub fn as_type(&self) -> Type {
+    pub fn to_type(&self) -> Type {
         self.ty.clone()
     }
 
     /// returns a reference to the type of the field
-    pub fn as_type_ref(&self) -> &Type {
+    pub fn as_type(&self) -> &Type {
         &self.ty
     }
 

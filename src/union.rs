@@ -76,7 +76,7 @@ impl Union {
     /// # Example
     ///
     /// union Foo {}  => union Foo;
-    pub fn as_type(&self) -> Type {
+    pub fn to_type(&self) -> Type {
         Type::new(BaseType::Union(self.name.clone()))
     }
 

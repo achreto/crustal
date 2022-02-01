@@ -74,7 +74,7 @@ impl Struct {
     /// # Example
     ///
     /// struct Foo {}  => struct Foo;
-    pub fn as_type(&self) -> Type {
+    pub fn to_type(&self) -> Type {
         Type::new(BaseType::Struct(self.name.clone()))
     }
 

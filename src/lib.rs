@@ -1,9 +1,9 @@
-// cgen-rs
+// C/C++ Code Generator For Rust
 //
 //
 // MIT License
 //
-// Copyright (c) 2021 Reto Achermann
+// Copyright (c) 2021, 2022 Reto Achermann
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -27,13 +27,21 @@
 //!
 //! The Cgen Rust library provides a builder API for generating C code.
 
+mod attribute;
+mod class;
 mod comment;
 mod doc;
+mod expr;
 mod field;
 mod formatter;
+mod function;
 mod ifdef;
 mod include;
+mod method;
+mod param;
 mod scope;
+mod stmt;
+mod union;
 mod variable;
 mod variant;
 
@@ -42,17 +50,25 @@ mod r#macro;
 mod r#struct;
 mod r#type;
 
+pub use attribute::Attribute;
+pub use class::Class;
 pub use comment::Comment;
 pub use doc::Doc;
+pub use expr::Expr;
 pub use field::Field;
 use formatter::Formatter;
+pub use function::Function;
 pub use ifdef::IfDef;
 pub use include::Include;
+pub use method::Method;
+pub use param::{FunctionParam, MethodParam};
 pub use r#macro::Macro;
 pub use scope::Scope;
+pub use stmt::Stmt;
+pub use union::Union;
 pub use variable::Variable;
 pub use variant::Variant;
 
 pub use r#enum::Enum;
 pub use r#struct::Struct;
-pub use r#type::Type;
+pub use r#type::{BaseType, Type, Visibility};

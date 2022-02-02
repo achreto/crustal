@@ -42,10 +42,7 @@ pub enum Stmt {
         is_static: bool,
     },
     /// represents a function call
-    FnCall {
-        name: String,
-        args: Vec<Expr>,
-    },
+    FnCall(Expr),
     Assign {
         lhs: Expr,
         rhs: Expr,
@@ -65,12 +62,8 @@ pub enum Stmt {
         step: Expr,
         body: Vec<Stmt>,
     },
-    Return {
-        val: Option<Expr>,
-    },
-    Raw {
-        val: String,
-    },
+    Return(Option<Expr>),
+    Raw(String),
 }
 
 impl Stmt {
@@ -93,11 +86,8 @@ impl Stmt {
     }
 
     /// creates a new function call statement
-    pub fn fncall(name: &str, args: Vec<Expr>) -> Self {
-        Stmt::FnCall {
-            name: String::from(name),
-            args,
-        }
+    pub fn fncall(expr: Expr) -> Self {
+        Stmt::FnCall(expr)
     }
 
     /// creates a guarded statement (if (e) {})
@@ -115,7 +105,94 @@ impl Stmt {
 
     /// Formats the variant using the given formatter.
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
-        panic!("Stmt::fmt")
+        match self {
+            Stmt::VarDecl {
+                name,
+                ty,
+                is_static,
+            } => {
+                if *is_static {
+                    write!(fmt, "static ")?;
+                }
+                ty.fmt(fmt)?;
+                writeln!(fmt, "{};", name)
+            }
+
+            Stmt::FnCall(e) => {
+                e.fmt(fmt)?;
+                writeln!(fmt, ";")
+            }
+            Stmt::Assign { lhs, rhs } => {
+                lhs.fmt(fmt)?;
+                write!(fmt, " = ")?;
+                rhs.fmt(fmt)?;
+                writeln!(fmt, ";")
+            }
+            Stmt::IfElse { cond, then, other } => {
+                write!(fmt, "if (")?;
+                cond.fmt(fmt)?;
+                write!(fmt, ")")?;
+                fmt.block(|fmt| {
+                    for s in then {
+                        s.fmt(fmt)?;
+                    }
+                    Ok(())
+                })?;
+
+                if !other.is_empty() {
+                    write!(fmt, " else ")?;
+                    fmt.block(|fmt| {
+                        for s in other {
+                            s.fmt(fmt)?;
+                        }
+                        Ok(())
+                    })?;
+                }
+                Ok(())
+            }
+            Stmt::WhileLoop { cond, body } => fmt.block(|fmt| {
+                write!(fmt, "while (")?;
+                cond.fmt(fmt)?;
+                write!(fmt, ")")?;
+                if !body.is_empty() {
+                    fmt.block(|fmt| {
+                        for s in body {
+                            s.fmt(fmt)?;
+                        }
+                        Ok(())
+                    })
+                } else {
+                    writeln!(fmt, ";")
+                }
+            }),
+            Stmt::ForLoop {
+                init,
+                cond,
+                step,
+                body,
+            } => {
+                write!(fmt, "for (")?;
+                init.fmt(fmt)?;
+                write!(fmt, "; ")?;
+                cond.fmt(fmt)?;
+                write!(fmt, "; ")?;
+                step.fmt(fmt)?;
+                write!(fmt, ")")?;
+                if !body.is_empty() {
+                    fmt.block(|fmt| {
+                        for s in body {
+                            s.fmt(fmt)?;
+                        }
+                        Ok(())
+                    })
+                } else {
+                    writeln!(fmt, ";")
+                }
+            }
+            Stmt::Return(Some(val)) => writeln!(fmt, "return {};", val),
+            Stmt::Return(None) => writeln!(fmt, "return;"),
+            Stmt::Raw(val) => writeln!(fmt, "{};", val),
+        }
     }
 }
 

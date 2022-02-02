@@ -33,6 +33,7 @@ use std::fmt::{self, Display, Write};
 use crate::{Doc, Formatter, FunctionParam, Stmt, Type};
 
 /// defines a C function
+#[derive(Debug, Clone)]
 pub struct Function {
     /// Name of the function
     name: String,

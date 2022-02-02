@@ -58,7 +58,43 @@ pub enum Expr {
 
 impl Expr {
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
-        panic!("Expr::fmt")
+        match self {
+            Expr::Variable { name, .. } => write!(fmt, "{}", name),
+            Expr::Const(x) => write!(fmt, "{}", x),
+            Expr::FnCall { name, args } => {
+                write!(fmt, "{}(", name)?;
+                for (i, v) in args.iter().enumerate() {
+                    if i != 0 {
+                        write!(fmt, ", ")?;
+                    }
+                    v.fmt(fmt)?;
+                }
+                write!(fmt, ")")
+            }
+            Expr::Deref(e) => {
+                write!(fmt, "*(")?;
+                e.as_ref().fmt(fmt)?;
+                write!(fmt, ")")
+            }
+            Expr::AddrOf(e) => {
+                write!(fmt, "&(")?;
+                e.as_ref().fmt(fmt)?;
+                write!(fmt, ")")
+            }
+            Expr::BinOp { lhs, rhs, op } => {
+                write!(fmt, "(")?;
+                lhs.as_ref().fmt(fmt)?;
+                write!(fmt, " {} ", op)?;
+                rhs.as_ref().fmt(fmt)?;
+                write!(fmt, ")")
+            }
+            Expr::UnOp { expr, op } => {
+                write!(fmt, "{}(", op)?;
+                expr.as_ref().fmt(fmt)?;
+                write!(fmt, ")")
+            }
+            Expr::Raw(s) => write!(fmt, "{}", s),
+        }
     }
 }
 

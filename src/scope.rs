@@ -32,7 +32,9 @@ use std::fmt::{self, Write};
 use std::fs;
 use std::path::Path;
 
-use crate::{Comment, Doc, Enum, Formatter, IfDef, Macro, Struct, Type, Variable};
+use crate::{
+    Class, Comment, Doc, Enum, Formatter, Function, IfDef, Macro, Struct, Type, Union, Variable,
+};
 
 /// defines an item of the scope
 #[derive(Debug, Clone)]
@@ -42,6 +44,9 @@ pub enum Item {
     IfDef(IfDef),
     Macro(Macro),
     Struct(Struct),
+    Union(Union),
+    Function(Function),
+    Class(Class),
     Variable(Variable),
 }
 
@@ -137,6 +142,54 @@ impl Scope {
         self
     }
 
+    /// adds a new class to the scope
+    pub fn new_class(&mut self, name: &str) -> &mut Class {
+        self.push_class(Class::new(name));
+
+        match *self.items.last_mut().unwrap() {
+            Item::Class(ref mut v) => v,
+            _ => unreachable!(),
+        }
+    }
+
+    /// pushes a class to the scope
+    pub fn push_class(&mut self, c: Class) -> &mut Self {
+        self.items.push(Item::Class(c));
+        self
+    }
+
+    /// adds a new union to the scope
+    pub fn new_union(&mut self, name: &str) -> &mut Union {
+        self.push_union(Union::new(name));
+
+        match *self.items.last_mut().unwrap() {
+            Item::Union(ref mut v) => v,
+            _ => unreachable!(),
+        }
+    }
+
+    /// pushes a class to the scope
+    pub fn push_union(&mut self, c: Union) -> &mut Self {
+        self.items.push(Item::Union(c));
+        self
+    }
+
+    /// adds a new union to the scope
+    pub fn new_function(&mut self, name: &str, ty: Type) -> &mut Function {
+        self.push_function(Function::new(name, ty));
+
+        match *self.items.last_mut().unwrap() {
+            Item::Function(ref mut v) => v,
+            _ => unreachable!(),
+        }
+    }
+
+    /// pushes a class to the scope
+    pub fn push_function(&mut self, c: Function) -> &mut Self {
+        self.items.push(Item::Function(c));
+        self
+    }
+
     /// adds a new macro to the scope
     pub fn new_macro(&mut self, name: &str) -> &mut Macro {
         self.push_macro(Macro::new(name));
@@ -185,8 +238,7 @@ impl Scope {
         self
     }
 
-    /// Formats the scope using the given formatter.
-    pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
+    pub fn do_fmt(&self, fmt: &mut Formatter<'_>, only_decls: bool) -> fmt::Result {
         // documentation and license information
         self.doc.as_ref().map(|d| d.fmt(fmt));
         writeln!(fmt, "\n")?;
@@ -202,18 +254,30 @@ impl Scope {
                 Item::Enum(v) => v.fmt(fmt)?,
                 Item::Variable(v) => v.fmt(fmt)?,
                 Item::IfDef(v) => v.fmt(fmt)?,
+                Item::Union(v) => v.fmt(fmt)?,
+                Item::Function(v) => v.fmt(fmt)?,
+                Item::Class(v) => v.fmt(fmt)?,
             }
         }
 
         Ok(())
     }
 
-    pub fn to_file(&self, path: &str) -> std::io::Result<()> {
+    /// Formats the scope using the given formatter.
+    pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
+        self.do_fmt(fmt, false)
+    }
+
+    pub fn to_file(&self, path: &str, only_decls: bool) -> std::io::Result<()> {
         // set the path to the file
         let file = Path::new(path);
 
+        let mut ret = String::new();
+        self.do_fmt(&mut Formatter::new(&mut ret), only_decls)
+            .unwrap();
+
         // write the file, return IOError otherwise
-        fs::write(file, self.to_string().as_bytes())
+        fs::write(file, ret.as_bytes())
     }
 }
 
@@ -226,7 +290,6 @@ impl Default for Scope {
 impl fmt::Display for Scope {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut ret = String::new();
-
         self.fmt(&mut Formatter::new(&mut ret)).unwrap();
 
         // Remove the trailing newline

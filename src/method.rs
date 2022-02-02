@@ -221,6 +221,7 @@ impl Method {
 
     /// turns the method into a pure method
     pub fn pure(&mut self) -> &mut Self {
+        self.body.clear();
         self.set_pure(true)
     }
 
@@ -275,7 +276,7 @@ impl Method {
     }
 
     /// pushes a new statement to the method
-    pub fn push_stmt(&mut self, stmt: Stmt, decl_only: bool) -> &mut Self {
+    pub fn push_stmt(&mut self, stmt: Stmt) -> &mut Self {
         self.is_pure = false;
         self.body.push(stmt);
         self

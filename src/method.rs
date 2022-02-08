@@ -153,9 +153,14 @@ impl Method {
     }
 
     /// adds an argument to the method
-    pub fn add_argument(&mut self, arg: MethodParam) -> &mut Self {
+    pub fn push_argument(&mut self, arg: MethodParam) -> &mut Self {
         self.args.push(arg);
         self
+    }
+
+    pub fn new_argument(&mut self, name: &str, ty: Type) -> &mut MethodParam {
+        self.push_argument(MethodParam::new(name, ty));
+        self.args.last_mut().unwrap()
     }
 
     /// sets the method to be overridden
@@ -263,7 +268,7 @@ impl Method {
 
     /// this method is defined inside
     pub fn inside_def(&mut self) -> &mut Self {
-        self.set_inline(true)
+        self.set_inside_def(true)
     }
 
     /// sets the body for the method
@@ -284,6 +289,10 @@ impl Method {
 
     /// Formats the attribute using the given formatter.
     pub fn do_fmt(&self, fmt: &mut Formatter<'_>, decl_only: bool) -> fmt::Result {
+        if !self.body.is_empty() | self.doc.is_some() {
+            writeln!(fmt)?;
+        }
+
         if let Some(ref docs) = self.doc {
             docs.fmt(fmt)?;
         }
@@ -333,14 +342,14 @@ impl Method {
             return writeln!(fmt, ";");
         }
 
-        writeln!(fmt, " {{\n")?;
+        writeln!(fmt, " {{")?;
         fmt.indent(|f| {
             for stmt in &self.body {
                 stmt.fmt(f)?;
             }
             Ok(())
         })?;
-        write!(fmt, "}}")
+        writeln!(fmt, "}}\n")
     }
 
     /// formats the method definition

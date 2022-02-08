@@ -59,6 +59,14 @@ impl FunctionParam {
         &self.name
     }
 
+    pub fn type_ref(&self) -> &Type {
+        &self.ty
+    }
+
+    pub fn to_type(&self) -> Type {
+        self.ty.clone()
+    }
+
     /// adds a string to the documentation comment to the parameter
     pub fn push_doc_str(&mut self, doc: &str) -> &mut Self {
         if let Some(d) = &mut self.doc {
@@ -115,6 +123,14 @@ impl MethodParam {
             ty,
             doc: None,
         }
+    }
+
+    pub fn type_ref(&self) -> &Type {
+        &self.ty
+    }
+
+    pub fn to_type(&self) -> Type {
+        self.ty.clone()
     }
 
     pub fn name(&self) -> &str {

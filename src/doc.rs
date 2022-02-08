@@ -54,8 +54,12 @@ impl Doc {
 
     /// adds a new line to the documentation block.
     pub fn add_line(&mut self, line: &str) -> &mut Self {
-        for l in line.lines() {
-            self.docs.push(l.to_string());
+        if line.is_empty() {
+            self.docs.push(String::new())
+        } else {
+            for l in line.lines() {
+                self.docs.push(l.to_string());
+            }
         }
         self
     }
@@ -65,17 +69,25 @@ impl Doc {
         let mut res = self;
         let lines = text.lines();
         for l in lines {
+            if l.is_empty() || l == "\n" {
+                res = res.add_line("");
+                continue;
+            }
             let mut start = 0;
             let mut end = 0;
-
             for (offset, c) in l.chars().enumerate() {
                 if c == ' ' && (offset - start) > 90 {
-                    res = res.add_line(&l[start..end]);
+                    res = res.add_line(&l[start..=end]);
                     start = end;
                 }
                 end = offset;
             }
-            res = res.add_line(&l[start..=end]);
+
+            if start == end {
+                res = res.add_line("");
+            } else {
+                res = res.add_line(&l[start..=end]);
+            }
         }
         res
     }

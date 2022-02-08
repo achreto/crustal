@@ -192,6 +192,23 @@ impl BaseType {
             TypeDef(_)
         )
     }
+
+    pub fn is_struct(&self) -> bool {
+        use BaseType::*;
+        matches!(self, Struct(_) | Union(_) | Class(_, _) | TypeDef(_))
+    }
+
+    /// creates a new integer type with a given type
+    pub fn new_int(n: u64) -> BaseType {
+        use BaseType::*;
+        match n {
+            1 => UInt8,
+            2 => UInt16,
+            4 => UInt32,
+            8 => UInt64,
+            _ => unreachable!(),
+        }
+    }
 }
 
 impl TypeModifier {
@@ -223,11 +240,29 @@ impl Type {
         &self.base
     }
 
+    /// checks if the type is a struct type
+    pub fn is_struct(&self) -> bool {
+        return self.base.is_struct();
+    }
+
+    /// returns true if the base type is an integer
     pub fn is_integer(&self) -> bool {
         if self.nptr != 0 {
             return false;
         }
         self.base.is_integer()
+    }
+
+    /// returns true if the type represents a pointer value
+    pub fn is_ptr(&self) -> bool {
+        if self.nptr > 0 {
+            return true;
+        }
+        // typedefs may always be pointers
+        if let BaseType::TypeDef(_) = &self.base {
+            return true;
+        }
+        false
     }
 
     /// create a new type from by taking a pointer of it

@@ -40,6 +40,9 @@ pub struct IfDef {
     /// the then branch
     then: Scope,
 
+    /// sets this ifdef to be a guard
+    is_guard: bool,
+
     /// the other branch
     other: Option<Scope>,
 }
@@ -50,6 +53,7 @@ impl IfDef {
         Self {
             sym: sym.to_string(),
             then: Scope::new(),
+            is_guard: false,
             other: None,
         }
     }
@@ -64,13 +68,25 @@ impl IfDef {
         &mut self.then
     }
 
+    pub fn guard(&mut self) -> &mut Self {
+        self.is_guard = true;
+        self
+    }
+
     // formats the ifdef block
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
-        writeln!(fmt, "#ifdef {}", self.sym)?;
+        writeln!(fmt, "\n")?;
+        if self.is_guard {
+            writeln!(fmt, "#ifndef {}", self.sym)?;
+            writeln!(fmt, "#define {} 1", self.sym)?;
+        } else {
+            writeln!(fmt, "#ifdef {}", self.sym)?;
+        }
         self.then.fmt(fmt)?;
         if let Some(b) = &self.other {
+            writeln!(fmt, "#else // !{}", self.sym)?;
             b.fmt(fmt)?;
         }
-        writeln!(fmt, "#endif // {}", self.sym)
+        writeln!(fmt, "\n#endif // {}", self.sym)
     }
 }

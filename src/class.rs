@@ -131,6 +131,8 @@ impl Class {
 
     /// formats the class
     fn do_fmt(&self, fmt: &mut Formatter<'_>, decl_only: bool) -> fmt::Result {
+        writeln!(fmt, "\n")?;
+
         if let Some(ref docs) = self.doc {
             docs.fmt(fmt)?;
         }
@@ -144,18 +146,18 @@ impl Class {
 
         let pub_attr = self.attributes.iter().filter(|a| a.is_public()).count();
         let pub_methods = self.methods.iter().filter(|a| a.is_public()).count();
-        let prot_attr = self.attributes.iter().filter(|a| a.is_public()).count();
-        let prot_methods = self.methods.iter().filter(|a| a.is_public()).count();
-        let priv_attr = self.attributes.iter().filter(|a| a.is_public()).count();
-        let priv_methods = self.methods.iter().filter(|a| a.is_public()).count();
+        let prot_attr = self.attributes.iter().filter(|a| a.is_protected()).count();
+        let prot_methods = self.methods.iter().filter(|a| a.is_protected()).count();
+        let priv_attr = self.attributes.iter().filter(|a| a.is_private()).count();
+        let priv_methods = self.methods.iter().filter(|a| a.is_private()).count();
 
         if pub_attr + pub_methods + prot_attr + prot_methods + priv_attr + priv_methods == 0 {
-            return writeln!(fmt, " {{ }};");
+            return writeln!(fmt, " {{ }};\n");
         }
 
         fmt.block(|fmt| {
             if pub_attr + pub_methods > 0 {
-                writeln!(fmt, "public:")?;
+                writeln!(fmt, "\npublic:")?;
             }
 
             if pub_attr > 0 {
@@ -174,7 +176,7 @@ impl Class {
             }
 
             if prot_attr + prot_attr > 0 {
-                writeln!(fmt, "protected:")?;
+                writeln!(fmt, "\nprotected:")?;
             }
 
             if prot_attr > 0 {
@@ -195,7 +197,7 @@ impl Class {
             }
 
             if priv_attr + priv_attr > 0 {
-                writeln!(fmt, "private:")?;
+                writeln!(fmt, "\nprivate:")?;
             }
 
             if priv_attr > 0 {
@@ -216,8 +218,7 @@ impl Class {
             }
             Ok(())
         })?;
-
-        Ok(())
+        writeln!(fmt)
     }
 
     /// formats the function definitions

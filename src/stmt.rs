@@ -99,6 +99,14 @@ impl Stmt {
         }
     }
 
+    pub fn retnone() -> Self {
+        Stmt::Return(None)
+    }
+
+    pub fn retval(expr: Expr) -> Self {
+        Stmt::Return(Some(expr))
+    }
+
     pub fn cond(cond: Expr, then: Vec<Stmt>, other: Vec<Stmt>) -> Self {
         Stmt::IfElse { cond, then, other }
     }

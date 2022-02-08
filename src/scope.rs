@@ -30,10 +30,11 @@
 // std includes
 use std::fmt::{self, Write};
 use std::fs;
-use std::path::Path;
+use std::path::PathBuf;
 
 use crate::{
-    Class, Comment, Doc, Enum, Formatter, Function, IfDef, Macro, Struct, Type, Union, Variable,
+    Class, Comment, Doc, Enum, Formatter, Function, IfDef, Include, Macro, Struct, Type, Union,
+    Variable,
 };
 
 /// defines an item of the scope
@@ -42,12 +43,14 @@ pub enum Item {
     Comment(Comment),
     Enum(Enum),
     IfDef(IfDef),
+    Include(Include),
     Macro(Macro),
     Struct(Struct),
     Union(Union),
     Function(Function),
     Class(Class),
     Variable(Variable),
+    NewLine,
 }
 
 /// defines the scope of the generated C code
@@ -82,6 +85,12 @@ impl Scope {
         self
     }
 
+    /// adds a empty line in the scope
+    pub fn push_empty_line(&mut self) -> &mut Self {
+        self.items.push(Item::NewLine);
+        self
+    }
+
     /// adds a documetnation comment to the variant
     pub fn doc(&mut self, doc: Doc) -> &mut Self {
         self.doc = Some(doc);
@@ -89,7 +98,7 @@ impl Scope {
     }
 
     /// sets the output file path
-    pub fn file(&mut self, file: &str) -> &mut Self {
+    pub fn set_filename(&mut self, file: &str) -> &mut Self {
         self.file = Some(String::from(file));
         self
     }
@@ -107,6 +116,26 @@ impl Scope {
     /// pushes a comment to the scope
     pub fn push_comment(&mut self, comment: Comment) -> &mut Self {
         self.items.push(Item::Comment(comment));
+        self
+    }
+
+    /// adds a new include to the scope
+    pub fn new_include(&mut self, inc: &str, system: bool) -> &mut Include {
+        if system {
+            self.push_include(Include::new_system(inc));
+        } else {
+            self.push_include(Include::new(inc));
+        }
+
+        match *self.items.last_mut().unwrap() {
+            Item::Include(ref mut v) => v,
+            _ => unreachable!(),
+        }
+    }
+
+    /// pushes a new include to the scope
+    pub fn push_include(&mut self, inc: Include) -> &mut Self {
+        self.items.push(Item::Include(inc));
         self
     }
 
@@ -241,14 +270,11 @@ impl Scope {
     pub fn do_fmt(&self, fmt: &mut Formatter<'_>, only_decls: bool) -> fmt::Result {
         // documentation and license information
         self.doc.as_ref().map(|d| d.fmt(fmt));
-        writeln!(fmt, "\n")?;
-        for (i, item) in self.items.iter().enumerate() {
-            if i != 0 {
-                writeln!(fmt, "\n")?;
-            }
 
+        for (i, item) in self.items.iter().enumerate() {
             match &item {
                 Item::Comment(v) => v.fmt(fmt)?,
+                Item::Include(v) => v.fmt(fmt)?,
                 Item::Struct(v) => v.fmt(fmt)?,
                 Item::Macro(v) => v.fmt(fmt)?,
                 Item::Enum(v) => v.fmt(fmt)?,
@@ -257,6 +283,7 @@ impl Scope {
                 Item::Union(v) => v.fmt(fmt)?,
                 Item::Function(v) => v.fmt(fmt)?,
                 Item::Class(v) => v.fmt(fmt)?,
+                Item::NewLine => writeln!(fmt)?,
             }
         }
 
@@ -268,9 +295,13 @@ impl Scope {
         self.do_fmt(fmt, false)
     }
 
-    pub fn to_file(&self, path: &str, only_decls: bool) -> std::io::Result<()> {
+    pub fn to_file(&self, path: &PathBuf, only_decls: bool) -> std::io::Result<()> {
         // set the path to the file
-        let file = Path::new(path);
+        let file = if let Some(f) = &self.file {
+            path.join(f.as_str())
+        } else {
+            path.join("file.c")
+        };
 
         let mut ret = String::new();
         self.do_fmt(&mut Formatter::new(&mut ret), only_decls)

@@ -1,6 +1,6 @@
 [package]
 name = "cgen-rs"
-version = "0.1.0"
+version = "0.1.1"
 license = "MIT"
 authors = ["Reto Achermann <achreto@gmail.com>"]
 description = "A library for generating C/C++ code."

@@ -1,14 +1,12 @@
-# Cgen-rs
+# CGEN-RS: C/C++ Code Generation from Rust
 
-This crate provides a builder API for building C code.
+This crate provides a library with builder API for constructing C/C++ code.
 
-## CREDIT
-
-This crate is inspired by `codegen-rs`.
 
 ## LICENSE
 
 [MIT license](LICENSE)
+
 
 ## CONTRIBUTING
 
@@ -18,10 +16,17 @@ the code under the [license](LICENSE) without any additional terms or conditions
 
 See the [AUTHORS](AUTHORS) file for a list of contributors.
 
+
+## CREDIT
+
+This crate is inspired by [codegen-rs`](https://crates.io/crates/codegen-rs)
+
+
 ## Installation
 
 To use `cgen-rs` clone the repository into the `lib` folder of your Rust project,
 or use [crates.io](https://crates.io)
+
 
 ## Usage
 

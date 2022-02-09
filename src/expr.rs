@@ -90,14 +90,14 @@ impl Expr {
         Expr::MethodCall {
             var: Box::new(var.clone()),
             method: method.to_string(),
-            args: args,
+            args,
         }
     }
 
     pub fn is_ptr(&self) -> bool {
         match self {
             Expr::Variable { ty, .. } => ty.is_ptr(),
-            Expr::Deref(e) => {
+            Expr::Deref(_e) => {
                 panic!("handle me!");
             }
             Expr::AddrOf(_) => true,

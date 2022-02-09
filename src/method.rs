@@ -218,6 +218,7 @@ impl Method {
     /// void foo()   -> virtual void foo() = 0
     pub fn set_pure(&mut self, val: bool) -> &mut Self {
         if val {
+            self.body.clear();
             self.is_virtual = true
         }
         self.is_pure = val;
@@ -226,7 +227,6 @@ impl Method {
 
     /// turns the method into a pure method
     pub fn pure(&mut self) -> &mut Self {
-        self.body.clear();
         self.set_pure(true)
     }
 

@@ -18,8 +18,8 @@ the code under the [license](LICENSE) without any additional terms or conditions
 
 ## Installation
 
-To use `cgen-rs` clone the repository into the `lib` folder of your Rust project
-until crates.io integration is completed.
+To use `cgen-rs` clone the repository into the `lib` folder of your Rust project,
+or use [crates.io](https://crates.io)
 
 ## Usage
 
@@ -50,11 +50,3 @@ scope.new_class("MyClass")
 
 println!("{}", scope.to_string());
 ```
-
-## Release
-
- When releasing to crates.io:
- - Update html_root_url.
- - Update CHANGELOG.md.
- - Update doc URL.
- - Create "vX.Y.Z" git tag.

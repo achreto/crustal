@@ -30,7 +30,7 @@
 // std includes
 use std::fmt::{self, Write};
 use std::fs;
-use std::path::PathBuf;
+use std::path::Path;
 
 use crate::{
     Class, Comment, Doc, Enum, Formatter, Function, IfDef, Include, Macro, Struct, Type, Union,
@@ -267,11 +267,11 @@ impl Scope {
         self
     }
 
-    pub fn do_fmt(&self, fmt: &mut Formatter<'_>, only_decls: bool) -> fmt::Result {
+    pub fn do_fmt(&self, fmt: &mut Formatter<'_>, _only_decls: bool) -> fmt::Result {
         // documentation and license information
         self.doc.as_ref().map(|d| d.fmt(fmt));
 
-        for (i, item) in self.items.iter().enumerate() {
+        for item in self.items.iter() {
             match &item {
                 Item::Comment(v) => v.fmt(fmt)?,
                 Item::Include(v) => v.fmt(fmt)?,
@@ -295,7 +295,7 @@ impl Scope {
         self.do_fmt(fmt, false)
     }
 
-    pub fn to_file(&self, path: &PathBuf, only_decls: bool) -> std::io::Result<()> {
+    pub fn to_file(&self, path: &Path, only_decls: bool) -> std::io::Result<()> {
         // set the path to the file
         let file = if let Some(f) = &self.file {
             path.join(f.as_str())

@@ -30,6 +30,7 @@
 mod attribute;
 mod class;
 mod comment;
+mod constructor;
 mod doc;
 mod expr;
 mod field;
@@ -53,6 +54,7 @@ mod r#type;
 pub use attribute::Attribute;
 pub use class::Class;
 pub use comment::Comment;
+pub use constructor::{Constructor, Destructor};
 pub use doc::Doc;
 pub use expr::Expr;
 pub use field::Field;

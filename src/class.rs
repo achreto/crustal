@@ -33,7 +33,9 @@
 
 use std::fmt::{self, Display, Write};
 
-use crate::{Attribute, BaseType, Doc, Formatter, Method, Type, Visibility};
+use crate::{
+    Attribute, BaseType, Constructor, Destructor, Doc, Formatter, Method, Type, Visibility,
+};
 
 /// Defines a C++ class
 #[derive(Debug, Clone)]
@@ -48,10 +50,10 @@ pub struct Class {
     base: Option<(Visibility, String)>,
 
     /// Class constructor methods
-    constructors: Vec<Method>,
+    constructors: Vec<Constructor>,
 
     /// Class destructor methods
-    destructor: Option<Method>,
+    destructor: Option<Destructor>,
 
     /// Method members of the class with their visibility
     methods: Vec<Method>,
@@ -129,6 +131,17 @@ impl Class {
         self
     }
 
+    pub fn new_constructor(&mut self) -> &mut Constructor {
+        self.constructors.push(Constructor::new(self.name.as_str()));
+        self.constructors.last_mut().unwrap()
+    }
+
+    /// creates a new destructor for the
+    pub fn new_destructor(&mut self) -> &mut Destructor {
+        self.destructor = Some(Destructor::new(self.name.as_str()));
+        self.destructor.as_mut().unwrap()
+    }
+
     /// formats the class
     fn do_fmt(&self, fmt: &mut Formatter<'_>, decl_only: bool) -> fmt::Result {
         writeln!(fmt, "\n")?;
@@ -146,18 +159,49 @@ impl Class {
 
         let pub_attr = self.attributes.iter().filter(|a| a.is_public()).count();
         let pub_methods = self.methods.iter().filter(|a| a.is_public()).count();
+        let pub_constructors = self.constructors.iter().filter(|a| a.is_public()).count();
         let prot_attr = self.attributes.iter().filter(|a| a.is_protected()).count();
         let prot_methods = self.methods.iter().filter(|a| a.is_protected()).count();
+        let prot_constructors = self
+            .constructors
+            .iter()
+            .filter(|a| a.is_protected())
+            .count();
         let priv_attr = self.attributes.iter().filter(|a| a.is_private()).count();
         let priv_methods = self.methods.iter().filter(|a| a.is_private()).count();
+        let priv_constructors = self.constructors.iter().filter(|a| a.is_private()).count();
 
-        if pub_attr + pub_methods + prot_attr + prot_methods + priv_attr + priv_methods == 0 {
+        if self.destructor.is_none()
+            && pub_attr
+                + pub_methods
+                + pub_constructors
+                + prot_attr
+                + prot_methods
+                + prot_constructors
+                + priv_attr
+                + priv_methods
+                + priv_constructors
+                == 0
+        {
             return writeln!(fmt, " {{ }};\n");
         }
 
         fmt.block(|fmt| {
-            if pub_attr + pub_methods > 0 {
+            if self.destructor.is_some() || pub_attr + pub_methods + pub_constructors > 0 {
                 writeln!(fmt, "\npublic:")?;
+            }
+
+            if pub_constructors > 0 {
+                self.constructors
+                    .iter()
+                    .filter(|m| m.is_public())
+                    .for_each(|m| {
+                        m.do_fmt(fmt, decl_only).expect("format failed");
+                    });
+            }
+
+            if let Some(d) = &self.destructor {
+                d.do_fmt(fmt, decl_only)?;
             }
 
             if pub_attr > 0 {
@@ -175,8 +219,17 @@ impl Class {
                 });
             }
 
-            if prot_attr + prot_attr > 0 {
+            if prot_attr + prot_attr + prot_constructors > 0 {
                 writeln!(fmt, "\nprotected:")?;
+            }
+
+            if prot_constructors > 0 {
+                self.constructors
+                    .iter()
+                    .filter(|m| m.is_protected())
+                    .for_each(|m| {
+                        m.do_fmt(fmt, decl_only).expect("format failed");
+                    });
             }
 
             if prot_attr > 0 {
@@ -196,8 +249,17 @@ impl Class {
                     });
             }
 
-            if priv_attr + priv_attr > 0 {
+            if priv_attr + priv_attr + priv_constructors > 0 {
                 writeln!(fmt, "\nprivate:")?;
+            }
+
+            if priv_constructors > 0 {
+                self.constructors
+                    .iter()
+                    .filter(|m| m.is_private())
+                    .for_each(|m| {
+                        m.do_fmt(fmt, decl_only).expect("format failed");
+                    });
             }
 
             if priv_attr > 0 {

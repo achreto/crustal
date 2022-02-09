@@ -120,6 +120,7 @@ pub enum TypeModifier {
     Ptr,
     Volatile,
     Const,
+    Ref,
 }
 
 /// represents a complete type
@@ -219,6 +220,7 @@ impl TypeModifier {
             Ptr => write!(fmt, " *"),
             Volatile => write!(fmt, " volatile"),
             Const => write!(fmt, " const"),
+            Ref => write!(fmt, " &"),
         }
     }
 }
@@ -242,7 +244,7 @@ impl Type {
 
     /// checks if the type is a struct type
     pub fn is_struct(&self) -> bool {
-        return self.base.is_struct();
+        self.base.is_struct()
     }
 
     /// returns true if the base type is an integer
@@ -275,6 +277,17 @@ impl Type {
         let mut n = self.clone();
         n.mods.push(TypeModifier::Ptr);
         n.nptr += 1;
+        n
+    }
+
+    /// create a new type from by taking a reference of it
+    ///
+    /// # Example
+    ///
+    /// `int` => `int &`
+    pub fn from_ref(&self) -> Self {
+        let mut n = self.clone();
+        n.mods.push(TypeModifier::Ref);
         n
     }
 
@@ -362,6 +375,16 @@ impl Type {
         assert!(self.nptr < 32);
         self.mods.push(TypeModifier::Ptr);
         self.nptr += 1;
+        self
+    }
+
+    /// makes the current type a pointer type
+    ///
+    /// # Example
+    ///
+    /// `int` => `int &`
+    pub fn reference(&mut self) -> &mut Self {
+        self.mods.push(TypeModifier::Ref);
         self
     }
 

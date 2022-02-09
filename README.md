@@ -14,7 +14,7 @@ This crate is inspired by `codegen-rs`.
 
 Code contributions are welcome. The submitter must use the *sign-off* feature
 for all commits confirming that the submitter has all rights to contribute
-the code under the [license](LICENSE) without any additional terms aor conditions.
+the code under the [license](LICENSE) without any additional terms or conditions.
 
 ## Installation
 
@@ -36,14 +36,17 @@ Next, create a `Scope` and use the builder API to create elements in the scope.
 Lastly, call `Scope::to_string()` to get formatted C code as a string.
 
 ```rust
-use cgen_rs::Scope;
+use cgen_rs as CG;
 
-let mut scope = Scope::new();
+let mut scope = CG::Scope::new();
+scope.set_filename("include/my_file.hpp");
 
-scope.new_struct("Foo")
-    .derive("Debug")
-    .field("one", "size_t")
-    .field("two", "char *");
+scope.push_doc_str("WARNING: This is auto-generated comment\n");
+scope.new_include("stdio.h", true);
+
+scope.new_class("MyClass")
+    .set_base("StateBase", CG::Visibility::Public)
+    .push_attribute(Attribute::new("name", Type::new_int(8)));
 
 println!("{}", scope.to_string());
 ```

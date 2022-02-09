@@ -51,7 +51,7 @@ pub struct Class {
     constructors: Vec<Method>,
 
     /// Class destructor methods
-    destructors: Vec<Method>,
+    destructor: Option<Method>,
 
     /// Method members of the class with their visibility
     methods: Vec<Method>,
@@ -67,7 +67,7 @@ impl Class {
             name: name.to_string(),
             doc: None,
             base: None,
-            destructors: Vec::new(),
+            destructor: None,
             constructors: Vec::new(),
             methods: Vec::new(),
             attributes: Vec::new(),

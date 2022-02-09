@@ -16,6 +16,8 @@ Code contributions are welcome. The submitter must use the *sign-off* feature
 for all commits confirming that the submitter has all rights to contribute
 the code under the [license](LICENSE) without any additional terms or conditions.
 
+See the [AUTHORS](AUTHORS) file for a list of contributors.
+
 ## Installation
 
 To use `cgen-rs` clone the repository into the `lib` folder of your Rust project,

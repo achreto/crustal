@@ -27,7 +27,7 @@
 //!
 //! This module exercises the field tests
 
-use cgen_rs::*;
+use crustal::*;
 
 #[test]
 fn test_fields_basics() {

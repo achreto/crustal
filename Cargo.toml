@@ -1,12 +1,12 @@
 [package]
-name = "cgen-rs"
+name = "crustal"
 version = "0.1.2"
 license = "MIT"
 authors = ["Reto Achermann <achreto@gmail.com>"]
 description = "A library for generating C/C++ code."
-documentation = "https://docs.rs/cgen-rs/"
-homepage = "https://github.com/achreto/cgen-rs"
-repository = "https://github.com/achreto/cgen-rs"
+documentation = "https://docs.rs/crustal/"
+homepage = "https://github.com/achreto/crustal"
+repository = "https://github.com/achreto/crustal"
 readme = "README.md"
 edition = "2021"
 

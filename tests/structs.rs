@@ -27,7 +27,7 @@
 //!
 //! This module exercises the struct tests
 
-use cgen_rs::*;
+use crustal::*;
 
 #[test]
 fn test_struct_forward_declaration() {

@@ -27,7 +27,7 @@
 //!
 //! This module exercises the type tests
 
-use cgen_rs::*;
+use crustal::*;
 
 #[test]
 fn types_base_types() {

@@ -27,17 +27,17 @@
 //!
 //! This module exercises the classes module
 
-use cgen_rs::*;
+use crustal::*;
 
 #[test]
 fn test_class_empty_def() {
     let s = Class::new("MyClass");
-    assert_eq!(s.to_string(), "class MyClass { };\n");
+    assert_eq!(s.to_string(), "\n\nclass MyClass { };\n\n");
 }
 
 #[test]
 fn test_class_inheritance() {
     let mut s = Class::new("MyClass");
     s.set_base("Foo", Visibility::Public);
-    assert_eq!(s.to_string(), "class MyClass : public Foo { };\n");
+    assert_eq!(s.to_string(), "\n\nclass MyClass : public Foo { };\n\n");
 }

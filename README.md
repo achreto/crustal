@@ -1,6 +1,7 @@
-# CGEN-RS: C/C++ Code Generation from Rust
+# CRustAL: The C/C++ from Rust Assembly Library
 
-This crate provides a library with builder API for constructing C/C++ code.
+This crate provides a library with builder API for assembling C/C++ code
+from Rust.
 
 
 ## LICENSE
@@ -24,26 +25,25 @@ This crate is inspired by [codegen-rs`](https://crates.io/crates/codegen-rs)
 
 ## Installation
 
-To use `cgen-rs` clone the repository into the `lib` folder of your Rust project,
+To use `crustal` clone the repository into the `lib` folder of your Rust project,
 or use [crates.io](https://crates.io)
 
 
 ## Usage
 
-You can use `cgen-rs` by adding the following lines to `Cargo.toml` file.
+You can use `crustal` by adding the following lines to `Cargo.toml` file.
 
-To use `codegen-rs`, first add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-cgen-rs = { path = "lib/cgen-rs" }
+crustal
 ```
 
 Next, create a `Scope` and use the builder API to create elements in the scope.
 Lastly, call `Scope::to_string()` to get formatted C code as a string.
 
 ```rust
-use cgen_rs as CG;
+use crustal as CG;
 
 let mut scope = CG::Scope::new();
 scope.set_filename("include/my_file.hpp");

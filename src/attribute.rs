@@ -163,6 +163,11 @@ impl Attribute {
         self.set_static(true)
     }
 
+    /// whether the function is static or not
+    pub fn is_static(&self) -> bool {
+        self.is_static
+    }
+
     /// sets the default value of the attribute
     pub fn set_value_raw(&mut self, val: &str) -> &mut Self {
         self.value = Some(String::from(val));

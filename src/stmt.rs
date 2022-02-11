@@ -86,7 +86,7 @@ impl Stmt {
     }
 
     /// creates a new function call statement
-    pub fn fncall(expr: Expr) -> Self {
+    pub fn fn_call(expr: Expr) -> Self {
         Stmt::FnCall(expr)
     }
 

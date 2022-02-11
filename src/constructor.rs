@@ -312,7 +312,12 @@ impl Constructor {
             docs.fmt(fmt)?;
         }
 
-        write!(fmt, " {}", self.name)?;
+        if decl_only {
+            write!(fmt, "{}", self.name)?;
+        } else {
+            fmt.write_scoped_name(self.name.as_str())?;
+        }
+
         if self.args.is_empty() {
             write!(fmt, "(void)")?;
         } else {
@@ -336,22 +341,25 @@ impl Constructor {
 
         // if we want to have the declaration only, then do that,
         // but only if it's not a inside method or an inline method
-        if self.body.is_empty() || (decl_only && !(self.is_inside)) {
+        if decl_only && !(self.is_inside) {
             return writeln!(fmt, ";");
         }
 
-        if !self.initializers.is_empty() {
-            write!(fmt, ":")?;
-            for (i, e) in self.initializers.iter().enumerate() {
-                if i != 0 {
-                    write!(fmt, ", ")?;
+        writeln!(fmt)?;
+        if !self.initializers.is_empty() && (!decl_only || self.is_inside) {
+            fmt.indent(|fmt| {
+                write!(fmt, ": ").expect("initializer");
+                for (i, e) in self.initializers.iter().enumerate() {
+                    if i != 0 {
+                        write!(fmt, ", ").expect("initializer");
+                    }
+                    e.fmt(fmt).expect("initializer");
+                    writeln!(fmt).expect("initializer");
                 }
-                e.fmt(fmt)?;
-                writeln!(fmt)?;
-            }
+            })
         }
 
-        writeln!(fmt, " {{")?;
+        writeln!(fmt, "{{")?;
         fmt.indent(|f| {
             for stmt in &self.body {
                 stmt.fmt(f)?;

@@ -237,6 +237,11 @@ impl Type {
         }
     }
 
+    /// creates a new type for the class
+    pub fn new_class(classname: &str) -> Self {
+        Type::new(BaseType::Class(classname.to_string(), Vec::new()))
+    }
+
     /// obtainst the base type of the type
     pub fn basetype(&self) -> &BaseType {
         &self.base

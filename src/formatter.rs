@@ -44,16 +44,41 @@ pub struct Formatter<'a> {
 
     /// The current indentation level
     spaces: usize,
+
+    /// the current scope
+    scope: Vec<String>,
 }
 
 impl<'a> Formatter<'a> {
     /// Returns a new formatter instance.
     pub fn new(dst: &'a mut String) -> Self {
-        Self { dst, spaces: 0 }
+        Self {
+            dst,
+            spaces: 0,
+            scope: vec![],
+        }
     }
 
     pub fn get_indent(&self) -> usize {
         self.spaces
+    }
+
+    pub fn scope<F, R>(&mut self, name: &str, f: F) -> R
+    where
+        F: FnOnce(&mut Self) -> R,
+    {
+        self.scope.push(name.to_string());
+        let ret = f(self);
+        self.scope.pop();
+        ret
+    }
+
+    pub fn write_scoped_name(&mut self, name: &str) -> fmt::Result {
+        for s in &self.scope {
+            self.dst.push_str(s);
+            self.dst.push_str("::");
+        }
+        write!(self, "{}", name)
     }
 
     /// Wraps the given function in a a C block. { ...}

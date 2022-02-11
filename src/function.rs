@@ -228,7 +228,7 @@ impl Function {
         self
     }
 
-    fn do_fmt(&self, fmt: &mut Formatter<'_>, decl_only: bool) -> fmt::Result {
+    pub fn do_fmt(&self, fmt: &mut Formatter<'_>, decl_only: bool) -> fmt::Result {
         if let Some(ref docs) = self.doc {
             docs.fmt(fmt)?;
         }

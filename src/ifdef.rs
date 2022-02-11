@@ -74,7 +74,7 @@ impl IfDef {
     }
 
     // formats the ifdef block
-    pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
+    pub fn do_fmt(&self, fmt: &mut Formatter<'_>, only_decls: bool) -> fmt::Result {
         writeln!(fmt, "\n")?;
         if self.is_guard {
             writeln!(fmt, "#ifndef {}", self.sym)?;
@@ -82,11 +82,15 @@ impl IfDef {
         } else {
             writeln!(fmt, "#ifdef {}", self.sym)?;
         }
-        self.then.fmt(fmt)?;
+        self.then.do_fmt(fmt, only_decls)?;
         if let Some(b) = &self.other {
             writeln!(fmt, "#else // !{}", self.sym)?;
-            b.fmt(fmt)?;
+            b.do_fmt(fmt, only_decls)?;
         }
         writeln!(fmt, "\n#endif // {}", self.sym)
+    }
+
+    pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
+        self.do_fmt(fmt, false)
     }
 }

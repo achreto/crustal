@@ -142,12 +142,28 @@ impl Class {
         self.destructor.as_mut().unwrap()
     }
 
-    /// formats the class
-    fn do_fmt(&self, fmt: &mut Formatter<'_>, decl_only: bool) -> fmt::Result {
-        writeln!(fmt, "\n")?;
-
+    pub fn do_fmt_class_scope(&self, fmt: &mut Formatter<'_>, decl_only: bool) -> fmt::Result {
         if let Some(ref docs) = self.doc {
             docs.fmt(fmt)?;
+        }
+
+        if !decl_only {
+            self.constructors.iter().for_each(|m| {
+                m.do_fmt(fmt, decl_only).expect("format failed");
+            });
+
+            self.attributes
+                .iter()
+                .filter(|a| a.is_static())
+                .for_each(|m| {
+                    m.do_fmt(fmt, decl_only).expect("format failed");
+                });
+
+            self.methods.iter().for_each(|m| {
+                m.do_fmt(fmt, decl_only).expect("format failed");
+            });
+
+            return Ok(());
         }
 
         write!(fmt, "class {}", self.name)?;
@@ -283,6 +299,15 @@ impl Class {
         writeln!(fmt)
     }
 
+    /// formats the class
+    pub fn do_fmt(&self, fmt: &mut Formatter<'_>, decl_only: bool) -> fmt::Result {
+        fmt.scope(self.name.as_str(), |fmt| {
+            self.do_fmt_class_scope(fmt, decl_only)
+                .expect("failed to format the class")
+        });
+        Ok(())
+    }
+
     /// formats the function definitions
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         self.do_fmt(fmt, false)
@@ -302,7 +327,11 @@ impl Class {
 impl Display for Class {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut ret = String::new();
-        self.fmt(&mut Formatter::new(&mut ret)).unwrap();
+        self.fmt_def(&mut Formatter::new(&mut ret)).unwrap();
+        write!(f, "{}", ret)?;
+
+        let mut ret = String::new();
+        self.fmt_decl(&mut Formatter::new(&mut ret)).unwrap();
         write!(f, "{}", ret)
     }
 }

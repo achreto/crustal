@@ -237,6 +237,18 @@ impl Type {
         }
     }
 
+    pub fn new_bool() -> Self {
+        Type::new(BaseType::Bool)
+    }
+
+    pub fn new_size() -> Self {
+        Type::new(BaseType::Size)
+    }
+
+    pub fn new_typedef(name: &str) -> Self {
+        Type::new(BaseType::TypeDef(name.to_string()))
+    }
+
     /// creates a new type for the class
     pub fn new_class(classname: &str) -> Self {
         Type::new(BaseType::Class(classname.to_string(), Vec::new()))

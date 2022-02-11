@@ -267,7 +267,7 @@ impl Scope {
         self
     }
 
-    pub fn do_fmt(&self, fmt: &mut Formatter<'_>, _only_decls: bool) -> fmt::Result {
+    pub fn do_fmt(&self, fmt: &mut Formatter<'_>, only_decls: bool) -> fmt::Result {
         // documentation and license information
         self.doc.as_ref().map(|d| d.fmt(fmt));
 
@@ -279,10 +279,10 @@ impl Scope {
                 Item::Macro(v) => v.fmt(fmt)?,
                 Item::Enum(v) => v.fmt(fmt)?,
                 Item::Variable(v) => v.fmt(fmt)?,
-                Item::IfDef(v) => v.fmt(fmt)?,
+                Item::IfDef(v) => v.do_fmt(fmt, only_decls)?,
                 Item::Union(v) => v.fmt(fmt)?,
-                Item::Function(v) => v.fmt(fmt)?,
-                Item::Class(v) => v.fmt(fmt)?,
+                Item::Function(v) => v.do_fmt(fmt, only_decls)?,
+                Item::Class(v) => v.do_fmt(fmt, only_decls)?,
                 Item::NewLine => writeln!(fmt)?,
             }
         }
@@ -292,7 +292,7 @@ impl Scope {
 
     /// Formats the scope using the given formatter.
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
-        self.do_fmt(fmt, false)
+        self.do_fmt(fmt, true)
     }
 
     pub fn to_file(&self, path: &Path, only_decls: bool) -> std::io::Result<()> {

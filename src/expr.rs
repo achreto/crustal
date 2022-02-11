@@ -35,11 +35,18 @@ use crate::{BaseType, Formatter, MethodParam, Type};
 #[derive(Debug, Clone)]
 pub enum Expr {
     /// represents a variable with a given type
-    Variable { name: String, ty: Type },
+    Variable {
+        name: String,
+        ty: Type,
+    },
     /// represents a constant in the expressions, e.g., 0, '1', "asdf"
-    Const(String),
+    ConstNum(u64),
+    ConstString(String),
     /// represents a function call
-    FnCall { name: String, args: Vec<Expr> },
+    FnCall {
+        name: String,
+        args: Vec<Expr>,
+    },
     /// represents a method call
     MethodCall {
         var: Box<Expr>,
@@ -51,7 +58,10 @@ pub enum Expr {
     /// represents the address of operationr: `&(Expr)`
     AddrOf(Box<Expr>),
     /// accesses the field
-    FieldAccess { var: Box<Expr>, field: String },
+    FieldAccess {
+        var: Box<Expr>,
+        field: String,
+    },
     /// represents a binary opreation: `a + b`
     BinOp {
         lhs: Box<Expr>,
@@ -59,7 +69,10 @@ pub enum Expr {
         op: String,
     },
     /// represents an uniary operator: `!(expr)`
-    UnOp { expr: Box<Expr>, op: String },
+    UnOp {
+        expr: Box<Expr>,
+        op: String,
+    },
     /// represents a raw expression token
     Raw(String),
 }
@@ -79,6 +92,10 @@ impl Expr {
         }
     }
 
+    pub fn addr_of(var: &Expr) -> Self {
+        Expr::AddrOf(Box::new(var.clone()))
+    }
+
     pub fn field_access(var: &Expr, field: &str) -> Self {
         Expr::FieldAccess {
             var: Box::new(var.clone()),
@@ -90,6 +107,13 @@ impl Expr {
         Expr::MethodCall {
             var: Box::new(var.clone()),
             method: method.to_string(),
+            args,
+        }
+    }
+
+    pub fn fn_call(name: &str, args: Vec<Expr>) -> Self {
+        Expr::FnCall {
+            name: String::from(name),
             args,
         }
     }
@@ -117,7 +141,8 @@ impl Expr {
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         match self {
             Expr::Variable { name, .. } => write!(fmt, "{}", name),
-            Expr::Const(x) => write!(fmt, "{}", x),
+            Expr::ConstString(x) => write!(fmt, "\"{}\"", x),
+            Expr::ConstNum(x) => write!(fmt, "{}", x),
             Expr::FnCall { name, args } => {
                 write!(fmt, "{}(", name)?;
                 for (i, v) in args.iter().enumerate() {

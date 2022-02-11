@@ -52,8 +52,23 @@ scope.push_doc_str("WARNING: This is auto-generated comment\n");
 scope.new_include("stdio.h", true);
 
 scope.new_class("MyClass")
-    .set_base("StateBase", CG::Visibility::Public)
-    .push_attribute(Attribute::new("name", Type::new_int(8)));
+        .set_base("StateBase", CG::Visibility::Public)
+        .push_attribute(CG::Attribute::new(
+        "name",
+        CG::Type::new(CG::BaseType::new_int(8)),
+    ));
 
 println!("{}", scope.to_string());
+```
+
+produces the output
+
+```cpp
+/// WARNING: This is auto-generated comment
+#include <stdio.h>
+class MyClass : public StateBase {
+
+    private:
+    uint64_t name;
+}
 ```

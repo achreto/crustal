@@ -175,7 +175,7 @@ impl Method {
 
     /// sets the method to override
     pub fn overrid(&mut self) -> &mut Self {
-        self.set_const(true)
+        self.set_override(true)
     }
 
     /// sets the constant modifier of the method

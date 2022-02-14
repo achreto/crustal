@@ -74,6 +74,7 @@ impl<'a> Formatter<'a> {
     }
 
     pub fn write_scoped_name(&mut self, name: &str) -> fmt::Result {
+        write!(self, " ")?;
         for s in &self.scope {
             self.dst.push_str(s);
             self.dst.push_str("::");

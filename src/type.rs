@@ -245,6 +245,10 @@ impl Type {
         Type::new(BaseType::Bool)
     }
 
+    pub fn new_std_string() -> Self {
+        Type::new(BaseType::Class("std::string".to_string(), Vec::new()))
+    }
+
     pub fn new_size() -> Self {
         Type::new(BaseType::Size)
     }

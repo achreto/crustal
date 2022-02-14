@@ -200,13 +200,13 @@ impl BaseType {
     }
 
     /// creates a new integer type with a given type
-    pub fn new_int(n: u64) -> BaseType {
+    pub fn new_int(bits: u64) -> BaseType {
         use BaseType::*;
-        match n {
-            1 => UInt8,
-            2 => UInt16,
-            4 => UInt32,
-            8 => UInt64,
+        match bits {
+            8 => UInt8,
+            16 => UInt16,
+            32 => UInt32,
+            64 => UInt64,
             _ => unreachable!(),
         }
     }
@@ -237,12 +237,20 @@ impl Type {
         }
     }
 
+    pub fn new_int(bits: u64) -> Self {
+        Type::new(BaseType::new_int(bits))
+    }
+
     pub fn new_bool() -> Self {
         Type::new(BaseType::Bool)
     }
 
     pub fn new_size() -> Self {
         Type::new(BaseType::Size)
+    }
+
+    pub fn new_void() -> Self {
+        Type::new(BaseType::Void)
     }
 
     pub fn new_typedef(name: &str) -> Self {

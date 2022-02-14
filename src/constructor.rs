@@ -178,15 +178,17 @@ impl Constructor {
     }
 
     /// pushes a new elemenet to the initializer list
-    pub fn push_initializer(&mut self, field_name: &str, value: Expr) {
+    pub fn push_initializer(&mut self, field_name: &str, value: Expr) -> &mut Self {
         self.initializers.push(Expr::FnCall {
             name: String::from(field_name),
             args: vec![value],
         });
+        self
     }
 
-    pub fn push_parent_initializer(&mut self, value: Expr) {
+    pub fn push_parent_initializer(&mut self, value: Expr) -> &mut Self {
         self.initializers.push(value);
+        self
     }
 
     /// sets the constructor to be default

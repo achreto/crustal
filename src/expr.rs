@@ -52,6 +52,7 @@ pub enum Expr {
         var: Box<Expr>,
         method: String,
         args: Vec<Expr>,
+        is_ptr: bool,
     },
     /// represents the dereference operator `*(Expr)`
     Deref(Box<Expr>),
@@ -85,6 +86,17 @@ impl Expr {
         }
     }
 
+    pub fn new_str(s: &str) -> Self {
+        Expr::ConstString(s.to_string())
+    }
+
+    pub fn new_var(name: &str, ty: Type) -> Self {
+        Expr::Variable {
+            name: name.to_string(),
+            ty,
+        }
+    }
+
     pub fn from_fn_param(p: &FunctionParam) -> Self {
         Expr::Variable {
             name: p.name().to_string(),
@@ -110,11 +122,13 @@ impl Expr {
         }
     }
 
+    /// TODO: add type information here!
     pub fn method_call(var: &Expr, method: &str, args: Vec<Expr>) -> Self {
         Expr::MethodCall {
             var: Box::new(var.clone()),
             method: method.to_string(),
             args,
+            is_ptr: false,
         }
     }
 
@@ -122,6 +136,12 @@ impl Expr {
         Expr::FnCall {
             name: String::from(name),
             args,
+        }
+    }
+
+    pub fn set_ptr(&mut self) {
+        if let Expr::MethodCall { is_ptr, .. } = self {
+            *is_ptr = true;
         }
     }
 
@@ -133,6 +153,7 @@ impl Expr {
             }
             Expr::AddrOf(_) => true,
             Expr::Raw(_) => true,
+            Expr::MethodCall { is_ptr, .. } => *is_ptr,
             _ => false,
         }
     }
@@ -178,7 +199,9 @@ impl Expr {
                     write!(fmt, ".{}", field)
                 }
             }
-            Expr::MethodCall { var, method, args } => {
+            Expr::MethodCall {
+                var, method, args, ..
+            } => {
                 var.as_ref().fmt(fmt)?;
                 if var.is_ptr() {
                     write!(fmt, "->{}(", method)?;

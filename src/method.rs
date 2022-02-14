@@ -310,7 +310,11 @@ impl Method {
         }
 
         self.ret.fmt(fmt)?;
-        write!(fmt, " {}", self.name)?;
+        if decl_only {
+            write!(fmt, " {}", self.name)?;
+        } else {
+            fmt.write_scoped_name(self.name.as_str())?;
+        }
         if self.args.is_empty() {
             write!(fmt, "(void)")?;
         } else {

@@ -90,13 +90,20 @@ impl Field {
         self
     }
 
-    /// sets the bitfield width
-    pub fn bitfield_width(&mut self, width: u8) -> &mut Self {
+    /// sets the width of the bitfield, if the type is an integer
+    ///
+    /// Note: only doesn't check the integer width
+    pub fn set_bitfield_width(&mut self, width: u8) -> &mut Self {
         // only allow this for integer types
         if self.ty.is_integer() {
             self.width = Some(width);
         }
         self
+    }
+
+    /// tests whether this is a bitfield
+    pub fn is_bitfield(&self) -> bool {
+        self.width.is_some()
     }
 
     /// Formats the variant using the given formatter.

@@ -296,7 +296,7 @@ impl Class {
             }
             Ok(())
         })?;
-        writeln!(fmt)
+        writeln!(fmt, ";")
     }
 
     /// formats the class

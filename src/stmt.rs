@@ -90,24 +90,19 @@ impl Stmt {
         Stmt::FnCall(expr)
     }
 
-    /// creates a guarded statement (if (e) {})
-    pub fn guard(cond: Expr, then: Vec<Stmt>) -> Self {
-        Stmt::IfElse {
-            cond,
-            then,
-            other: Vec::new(),
-        }
-    }
-
     pub fn retnone() -> Self {
         Stmt::Return(None)
     }
 
-    pub fn retval(expr: Expr) -> Self {
-        Stmt::Return(Some(expr))
+    pub fn retval(expr: &Expr) -> Self {
+        Stmt::Return(Some(expr.clone()))
     }
 
-    pub fn cond(cond: Expr, then: Vec<Stmt>, other: Vec<Stmt>) -> Self {
+    pub fn ifthen(cond: Expr, then: Vec<Stmt>) -> Self {
+        Self::ifthenelse(cond, then, vec![])
+    }
+
+    pub fn ifthenelse(cond: Expr, then: Vec<Stmt>, other: Vec<Stmt>) -> Self {
         Stmt::IfElse { cond, then, other }
     }
 
@@ -123,7 +118,7 @@ impl Stmt {
                     write!(fmt, "static ")?;
                 }
                 ty.fmt(fmt)?;
-                writeln!(fmt, "{};", name)
+                writeln!(fmt, " {};", name)
             }
 
             Stmt::FnCall(e) => {
@@ -156,7 +151,7 @@ impl Stmt {
                         Ok(())
                     })?;
                 }
-                Ok(())
+                writeln!(fmt)
             }
             Stmt::WhileLoop { cond, body } => fmt.block(|fmt| {
                 write!(fmt, "while (")?;

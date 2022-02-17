@@ -42,6 +42,7 @@ pub enum Expr {
     /// represents a constant in the expressions, e.g., 0, '1', "asdf"
     ConstNum(u64),
     ConstString(String),
+    ConstBool(bool),
     /// represents a function call
     FnCall {
         name: String,
@@ -62,6 +63,7 @@ pub enum Expr {
     FieldAccess {
         var: Box<Expr>,
         field: String,
+        is_ptr: bool,
     },
     /// represents a binary opreation: `a + b`
     BinOp {
@@ -90,10 +92,37 @@ impl Expr {
         Expr::ConstString(s.to_string())
     }
 
+    pub fn new_num(n: u64) -> Self {
+        Expr::ConstNum(n)
+    }
+
     pub fn new_var(name: &str, ty: Type) -> Self {
         Expr::Variable {
             name: name.to_string(),
             ty,
+        }
+    }
+
+    pub fn btrue() -> Self {
+        Expr::ConstBool(true)
+    }
+
+    pub fn bfalse() -> Self {
+        Expr::ConstBool(false)
+    }
+
+    pub fn uop(op: &str, expr: Expr) -> Self {
+        Expr::UnOp {
+            expr: Box::new(expr),
+            op: op.to_string(),
+        }
+    }
+
+    pub fn binop(lhs: Expr, op: &str, rhs: Expr) -> Self {
+        Expr::BinOp {
+            lhs: Box::new(lhs),
+            rhs: Box::new(rhs),
+            op: op.to_string(),
         }
     }
 
@@ -119,6 +148,7 @@ impl Expr {
         Expr::FieldAccess {
             var: Box::new(var.clone()),
             field: field.to_string(),
+            is_ptr: false,
         }
     }
 
@@ -143,6 +173,9 @@ impl Expr {
         if let Expr::MethodCall { is_ptr, .. } = self {
             *is_ptr = true;
         }
+        if let Expr::FieldAccess { is_ptr, .. } = self {
+            *is_ptr = true;
+        }
     }
 
     pub fn is_ptr(&self) -> bool {
@@ -154,6 +187,7 @@ impl Expr {
             Expr::AddrOf(_) => true,
             Expr::Raw(_) => true,
             Expr::MethodCall { is_ptr, .. } => *is_ptr,
+            Expr::FieldAccess { is_ptr, .. } => *is_ptr,
             _ => false,
         }
     }
@@ -171,6 +205,8 @@ impl Expr {
             Expr::Variable { name, .. } => write!(fmt, "{}", name),
             Expr::ConstString(x) => write!(fmt, "\"{}\"", x),
             Expr::ConstNum(x) => write!(fmt, "{}", x),
+            Expr::ConstBool(true) => write!(fmt, "true"),
+            Expr::ConstBool(false) => write!(fmt, "false"),
             Expr::FnCall { name, args } => {
                 write!(fmt, "{}(", name)?;
                 for (i, v) in args.iter().enumerate() {
@@ -191,7 +227,7 @@ impl Expr {
                 e.as_ref().fmt(fmt)?;
                 write!(fmt, ")")
             }
-            Expr::FieldAccess { var, field } => {
+            Expr::FieldAccess { var, field, .. } => {
                 var.as_ref().fmt(fmt)?;
                 if var.is_ptr() {
                     write!(fmt, "->{}", field)

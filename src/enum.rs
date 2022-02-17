@@ -31,9 +31,7 @@
 use std::fmt;
 use std::fmt::Write;
 
-use crate::doc::Doc;
-use crate::formatter::Formatter;
-use crate::variant::Variant;
+use crate::{Doc, Formatter, Type, Variant};
 
 /// Defines a C enum.
 #[derive(Debug, Clone)]
@@ -58,6 +56,20 @@ impl Enum {
         }
     }
 
+    /// Creates a new `Enum` with the given name and the supplied variants
+    pub fn with_variants(name: &str, variants: Vec<Variant>) -> Self {
+        Self {
+            name: String::from(name),
+            variants,
+            doc: None,
+        }
+    }
+
+    /// converts the enum into a type
+    pub fn to_type(&self) -> Type {
+        Type::new_enum(&self.name)
+    }
+
     /// Adds a new documentation to the enum
     pub fn doc(&mut self, doc: Doc) -> &mut Self {
         self.doc = Some(doc);
@@ -75,8 +87,8 @@ impl Enum {
     }
 
     /// creates a new variant with the given name and value
-    pub fn new_variant(&mut self, name: &str, value: Option<u64>) -> &mut Variant {
-        self.variants.push(Variant::new(name, value));
+    pub fn new_variant(&mut self, name: &str) -> &mut Variant {
+        self.variants.push(Variant::new(name));
         self.variants.last_mut().unwrap()
     }
 
@@ -84,6 +96,11 @@ impl Enum {
     pub fn push_variant(&mut self, item: Variant) -> &mut Self {
         self.variants.push(item);
         self
+    }
+
+    /// Formats a forward declaration for the enum
+    pub fn fmt_decl(&self, fmt: &mut Formatter) -> fmt::Result {
+        write!(fmt, "enum {};   // forward declaration", self.name)
     }
 
     /// Formats the enum using the given formatter.

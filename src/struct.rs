@@ -27,10 +27,13 @@
 //!
 //! This module defines the C struct. For now, this is just supporting standard
 //! C structs, for C++ structs use the 'class' module.
+//!
+//! Right now nested, anonymous structs cannot be supported. However, you can define
+//! a `Field` that has a struct type.
 
 use std::fmt::{self, Display, Write};
 
-use crate::{BaseType, Doc, Field, Formatter, Type};
+use crate::{Doc, Field, Formatter, Type};
 
 ///defines a struct
 #[derive(Debug, Clone)]
@@ -59,11 +62,13 @@ impl Struct {
         }
     }
 
-    /// obtains the declaration for this struct definition
-    pub fn to_decl(&self) -> Self {
+    /// Creates a new `Struct` with the given name and the supplied fields
+    ///
+    /// Note: the fields are not checked for duplicates.
+    pub fn with_fields(name: &str, fields: Vec<Field>) -> Self {
         Self {
-            name: self.name.clone(),
-            fields: Vec::new(),
+            name: String::from(name),
+            fields,
             doc: None,
             attributes: Vec::new(),
         }
@@ -75,7 +80,7 @@ impl Struct {
     ///
     /// struct Foo {}  => struct Foo;
     pub fn to_type(&self) -> Type {
-        Type::new(BaseType::Struct(self.name.clone()))
+        Type::new_struct(&self.name)
     }
 
     /// Adds a new documentation to the struct
@@ -95,21 +100,30 @@ impl Struct {
     }
 
     /// creates a new field with the given name and value
+    ///
+    /// Note: the field is not checked for duplicates.
     pub fn new_field(&mut self, name: &str, ty: Type) -> &mut Field {
         self.fields.push(Field::new(name, ty));
         self.fields.last_mut().unwrap()
     }
 
     /// Push a field to the struct.
+    ///
+    /// Note: the field is not checked for duplicates.
     pub fn push_field(&mut self, item: Field) -> &mut Self {
         self.fields.push(item);
         self
     }
 
     /// adds a new attribute to the struct
-    pub fn push_attribute(&mut self, attr: &str) -> &mut Self {
-        self.attributes.push(String::from(attr));
+    pub fn push_attribute(&mut self, attr: String) -> &mut Self {
+        self.attributes.push(attr);
         self
+    }
+
+    /// Formats a forward declaration for the struct
+    pub fn fmt_decl(&self, fmt: &mut Formatter) -> fmt::Result {
+        write!(fmt, "struct {};   // forward declaration", self.name)
     }
 
     /// Formats the struct using the given formatter.

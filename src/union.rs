@@ -32,7 +32,7 @@
 
 use std::fmt::{self, Display, Write};
 
-use crate::{BaseType, Doc, Field, Formatter, Type};
+use crate::{Doc, Field, Formatter, Type};
 
 ///defines a union
 #[derive(Debug, Clone)]
@@ -61,11 +61,13 @@ impl Union {
         }
     }
 
-    /// obtains the declaration for this struct definition
-    pub fn to_decl(&self) -> Self {
+    /// Creates a new `Union` with the given name and the supplied fields
+    ///
+    /// Note: the fields are not checked for duplicates.
+    pub fn with_fields(name: &str, fields: Vec<Field>) -> Self {
         Self {
-            name: self.name.clone(),
-            fields: Vec::new(),
+            name: String::from(name),
+            fields,
             doc: None,
             attributes: Vec::new(),
         }
@@ -77,7 +79,7 @@ impl Union {
     ///
     /// union Foo {}  => union Foo;
     pub fn to_type(&self) -> Type {
-        Type::new(BaseType::Union(self.name.clone()))
+        Type::new_union(&self.name)
     }
 
     /// Adds a new documentation to the union
@@ -109,9 +111,14 @@ impl Union {
     }
 
     /// adds a new attribute to the union
-    pub fn push_attribute(&mut self, attr: &str) -> &mut Self {
-        self.attributes.push(String::from(attr));
+    pub fn push_attribute(&mut self, attr: String) -> &mut Self {
+        self.attributes.push(attr);
         self
+    }
+
+    /// Formats a forward declaration for the union
+    pub fn fmt_decl(&self, fmt: &mut Formatter) -> fmt::Result {
+        write!(fmt, "union {};   // forward declaration", self.name)
     }
 
     /// Formats the union using the given formatter.

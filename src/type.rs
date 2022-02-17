@@ -32,7 +32,7 @@ use std::fmt::{self, Display, Write};
 use crate::formatter::Formatter;
 
 /// Represents the visibility for C++ class members
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Copy)]
 pub enum Visibility {
     /// Members are declared to be public
     Public,
@@ -264,6 +264,19 @@ impl Type {
     /// creates a new type for the class
     pub fn new_class(classname: &str) -> Self {
         Type::new(BaseType::Class(classname.to_string(), Vec::new()))
+    }
+
+    /// creates a new type for the class
+    pub fn new_enum(name: &str) -> Self {
+        Type::new(BaseType::Enum(String::from(name)))
+    }
+
+    pub fn new_struct(name: &str) -> Self {
+        Type::new(BaseType::Struct(String::from(name)))
+    }
+
+    pub fn new_union(name: &str) -> Self {
+        Type::new(BaseType::Union(String::from(name)))
     }
 
     /// obtainst the base type of the type

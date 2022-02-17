@@ -48,7 +48,16 @@ pub struct Variant {
 
 impl Variant {
     /// Creates a new `Variant`
-    pub fn new(name: &str, value: Option<u64>) -> Self {
+    pub fn new(name: &str) -> Self {
+        Variant {
+            name: String::from(name),
+            value: None,
+            doc: None,
+        }
+    }
+
+    /// Creates a new `Variant`
+    pub fn new_with_value(name: &str, value: Option<u64>) -> Self {
         Variant {
             name: String::from(name),
             value,
@@ -70,6 +79,17 @@ impl Variant {
     pub fn doc(&mut self, doc: Doc) -> &mut Self {
         self.doc = Some(doc);
         self
+    }
+
+    /// sets the current value
+    pub fn set_value(&mut self, value: u64) -> &mut Self {
+        self.value = Some(value);
+        self
+    }
+
+    /// obtains the current value of the variant
+    pub fn value(&self) -> Option<u64> {
+        self.value
     }
 
     /// Formats the variant using the given formatter.

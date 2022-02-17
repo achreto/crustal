@@ -328,7 +328,7 @@ impl Constructor {
                 if i != 0 {
                     write!(fmt, ", ")?;
                 }
-                arg.fmt(fmt)?;
+                arg.do_fmt(fmt, decl_only)?;
             }
             write!(fmt, ")")?;
         }

@@ -297,7 +297,7 @@ impl Method {
             docs.fmt(fmt)?;
         }
 
-        if self.is_static {
+        if self.is_static && decl_only {
             write!(fmt, "static ")?;
         }
 
@@ -305,7 +305,7 @@ impl Method {
             write!(fmt, "inline ")?;
         }
 
-        if self.is_virtual {
+        if self.is_virtual && decl_only {
             write!(fmt, "virtual ")?;
         }
 
@@ -328,15 +328,15 @@ impl Method {
             write!(fmt, ")")?;
         }
 
-        if self.is_const {
+        if self.is_const && decl_only {
             write!(fmt, " const")?;
         }
 
-        if self.is_override {
+        if self.is_override && decl_only {
             write!(fmt, " override")?;
         }
 
-        if self.is_pure {
+        if self.is_pure && decl_only {
             return write!(fmt, " = 0;");
         }
 

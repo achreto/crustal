@@ -159,14 +159,20 @@ impl MethodParam {
         self
     }
 
-    /// Formats the variant using the given formatter.
-    pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
+    pub fn do_fmt(&self, fmt: &mut Formatter<'_>, decl_only: bool) -> fmt::Result {
         self.ty.fmt(fmt)?;
         write!(fmt, " {}", self.name)?;
         if let Some(s) = &self.default {
-            write!(fmt, " = {}", s)?;
+            if decl_only {
+                write!(fmt, " = {}", s)?;
+            }
         }
         Ok(())
+    }
+
+    /// Formats the variant using the given formatter.
+    pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
+        self.do_fmt(fmt, false)
     }
 }
 

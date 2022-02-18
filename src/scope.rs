@@ -105,7 +105,7 @@ impl Scope {
 
     /// adds a new comment to the scope
     pub fn new_comment(&mut self, comment: &str) -> &mut Comment {
-        self.push_comment(Comment::new(comment));
+        self.push_comment(Comment::with_str(comment));
 
         match *self.items.last_mut().unwrap() {
             Item::Comment(ref mut v) => v,

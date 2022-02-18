@@ -26,7 +26,7 @@
 //! # Documentation
 //!
 //! The documentation modules provides a way to add documentation comments to the
-//! generated code.
+//! generated code. Note, to insert normal comments please see the `Comment` module.
 
 use std::fmt::{self, Write};
 
@@ -52,6 +52,14 @@ impl Doc {
         doc
     }
 
+    /// creates a new documentation block from a string.
+    pub fn with_string(docs: String) -> Self {
+        let mut doc = Doc::new();
+        // try to add the string directly here...
+        doc.add_text(&docs);
+        doc
+    }
+
     /// adds a new line to the documentation block.
     pub fn add_line(&mut self, line: &str) -> &mut Self {
         if line.is_empty() {
@@ -64,7 +72,7 @@ impl Doc {
         self
     }
 
-    /// adds a new textblock as documentatin comments, while breaking long lines.
+    /// adds a new textblock as documentation comments, while breaking long lines.
     pub fn add_text(&mut self, text: &str) -> &mut Self {
         let mut res = self;
         let lines = text.lines();

@@ -26,7 +26,9 @@
 //! # Comment
 //!
 //! The documentation modules provides a way to add general comments to the
-//! generated code.
+//! generated code. This can either be some heading comment, or standard inline
+//! comments. Not this will create simple comments, as opposed to document comments
+//! for which there is the `Doc` module.
 
 use std::fmt::{self, Write};
 
@@ -37,17 +39,28 @@ use crate::formatter::Formatter;
 pub struct Comment {
     /// the comment string
     comment: String,
+
     /// defines whether the comment is a heading
     is_heading: bool,
 }
 
 impl Comment {
-    /// creates a new comment
-    pub fn new(comment: &str) -> Self {
+    /// creates a new, empty comment
+    pub fn new() -> Self {
+        Comment::with_string(String::new())
+    }
+
+    /// creates a new comment with a given string
+    pub fn with_string(comment: String) -> Self {
         Self {
-            comment: comment.to_string(),
+            comment,
             is_heading: false,
         }
+    }
+
+    /// creates a new comment with a given str ref
+    pub fn with_str(comment: &str) -> Self {
+        Self::with_string(String::from(comment))
     }
 
     /// creates a new heading comment
@@ -56,6 +69,12 @@ impl Comment {
             comment: comment.to_string(),
             is_heading: false,
         }
+    }
+
+    /// converts the comment into a heading comment
+    pub fn set_heading(&mut self) -> &mut Self {
+        self.is_heading = true;
+        self
     }
 
     /// pushes the heading separator
@@ -77,5 +96,11 @@ impl Comment {
             writeln!(fmt, "// {}", line)?;
         }
         self.push_heading(fmt)
+    }
+}
+
+impl Default for Comment {
+    fn default() -> Self {
+        Self::new()
     }
 }

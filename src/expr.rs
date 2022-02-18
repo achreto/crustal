@@ -136,7 +136,7 @@ impl Expr {
     pub fn this() -> Self {
         Expr::Variable {
             name: "this".to_string(),
-            ty: Type::from_ptr(&Type::new(BaseType::Class(String::from("auto"), vec![]))),
+            ty: Type::to_ptr(&Type::new(BaseType::Class(String::from("auto")))),
         }
     }
 
@@ -235,9 +235,7 @@ impl Expr {
                     write!(fmt, ".{}", field)
                 }
             }
-            Expr::MethodCall {
-                var, method, args, ..
-            } => {
+            Expr::MethodCall { var, method, args, .. } => {
                 var.as_ref().fmt(fmt)?;
                 if var.is_ptr() {
                     write!(fmt, "->{}(", method)?;

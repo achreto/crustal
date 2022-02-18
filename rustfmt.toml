@@ -1,2 +1,25 @@
+# Specifies which edition is used by the parser.
+edition = "2021"
+
+# Unix or Windows line endings
+newline_style = "Unix"
+
+# Number of spaces per tab
 tab_spaces = 4
+
+# Use field initialize shorthand if possible
+use_field_init_shorthand = true
+
+# Maximum width of each line
 max_width = 100
+
+# increase the max width of certain elemenets
+use_small_heuristics = "Off"
+fn_call_width = 80
+attr_fn_like_width = 85
+struct_lit_width = 25
+struct_variant_width = 45
+array_width = 80
+chain_width =  80
+single_line_if_else_max_width = 60
+

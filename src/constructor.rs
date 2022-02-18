@@ -242,7 +242,7 @@ impl Constructor {
     /// Foo()   -> Foo(const Foo&)
     pub fn set_copy(&mut self, val: bool) -> &mut Self {
         if val {
-            let mut ty = Type::new(BaseType::Class(self.name.clone(), vec![]));
+            let mut ty = Type::new(BaseType::Class(self.name.clone()));
             ty.constant().reference();
             self.args = vec![MethodParam::new("other", ty)];
         }
@@ -262,7 +262,7 @@ impl Constructor {
     /// Foo()   -> Foo(Foo &&)
     pub fn set_move(&mut self, val: bool) -> &mut Self {
         if val {
-            let mut ty = Type::new(BaseType::Class(self.name.clone(), vec![]));
+            let mut ty = Type::new(BaseType::Class(self.name.clone()));
             ty.reference().reference();
             self.args = vec![MethodParam::new("other", ty)];
         }

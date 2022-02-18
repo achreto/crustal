@@ -82,7 +82,7 @@ impl Class {
     ///
     /// struct Foo {}  => struct Foo;
     pub fn to_type(&self) -> Type {
-        Type::new(BaseType::Class(self.name.clone(), Vec::new()))
+        Type::new(BaseType::Class(self.name.clone()))
     }
 
     /// adds a string to the documentation comment to the class
@@ -152,12 +152,9 @@ impl Class {
                 m.do_fmt(fmt, decl_only).expect("format failed");
             });
 
-            self.attributes
-                .iter()
-                .filter(|a| a.is_static())
-                .for_each(|m| {
-                    m.do_fmt(fmt, decl_only).expect("format failed");
-                });
+            self.attributes.iter().filter(|a| a.is_static()).for_each(|m| {
+                m.do_fmt(fmt, decl_only).expect("format failed");
+            });
 
             self.methods.iter().for_each(|m| {
                 m.do_fmt(fmt, decl_only).expect("format failed");
@@ -178,11 +175,7 @@ impl Class {
         let pub_constructors = self.constructors.iter().filter(|a| a.is_public()).count();
         let prot_attr = self.attributes.iter().filter(|a| a.is_protected()).count();
         let prot_methods = self.methods.iter().filter(|a| a.is_protected()).count();
-        let prot_constructors = self
-            .constructors
-            .iter()
-            .filter(|a| a.is_protected())
-            .count();
+        let prot_constructors = self.constructors.iter().filter(|a| a.is_protected()).count();
         let priv_attr = self.attributes.iter().filter(|a| a.is_private()).count();
         let priv_methods = self.methods.iter().filter(|a| a.is_private()).count();
         let priv_constructors = self.constructors.iter().filter(|a| a.is_private()).count();
@@ -199,7 +192,7 @@ impl Class {
                 + priv_constructors
                 == 0
         {
-            return writeln!(fmt, " {{ }};\n");
+            return writeln!(fmt, " {{ }};");
         }
 
         fmt.block(|fmt| {
@@ -208,12 +201,9 @@ impl Class {
             }
 
             if pub_constructors > 0 {
-                self.constructors
-                    .iter()
-                    .filter(|m| m.is_public())
-                    .for_each(|m| {
-                        m.do_fmt(fmt, decl_only).expect("format failed");
-                    });
+                self.constructors.iter().filter(|m| m.is_public()).for_each(|m| {
+                    m.do_fmt(fmt, decl_only).expect("format failed");
+                });
             }
 
             if let Some(d) = &self.destructor {
@@ -221,12 +211,9 @@ impl Class {
             }
 
             if pub_attr > 0 {
-                self.attributes
-                    .iter()
-                    .filter(|a| a.is_public())
-                    .for_each(|m| {
-                        m.do_fmt(fmt, decl_only).expect("format failed");
-                    });
+                self.attributes.iter().filter(|a| a.is_public()).for_each(|m| {
+                    m.do_fmt(fmt, decl_only).expect("format failed");
+                });
             }
 
             if pub_methods > 0 {
@@ -240,29 +227,20 @@ impl Class {
             }
 
             if prot_constructors > 0 {
-                self.constructors
-                    .iter()
-                    .filter(|m| m.is_protected())
-                    .for_each(|m| {
-                        m.do_fmt(fmt, decl_only).expect("format failed");
-                    });
+                self.constructors.iter().filter(|m| m.is_protected()).for_each(|m| {
+                    m.do_fmt(fmt, decl_only).expect("format failed");
+                });
             }
 
             if prot_attr > 0 {
-                self.attributes
-                    .iter()
-                    .filter(|a| a.is_protected())
-                    .for_each(|m| {
-                        m.do_fmt(fmt, decl_only).expect("format failed");
-                    });
+                self.attributes.iter().filter(|a| a.is_protected()).for_each(|m| {
+                    m.do_fmt(fmt, decl_only).expect("format failed");
+                });
             }
             if prot_methods > 0 {
-                self.methods
-                    .iter()
-                    .filter(|m| m.is_protected())
-                    .for_each(|m| {
-                        m.do_fmt(fmt, decl_only).expect("format failed");
-                    });
+                self.methods.iter().filter(|m| m.is_protected()).for_each(|m| {
+                    m.do_fmt(fmt, decl_only).expect("format failed");
+                });
             }
 
             if priv_attr + priv_attr + priv_constructors > 0 {
@@ -270,29 +248,20 @@ impl Class {
             }
 
             if priv_constructors > 0 {
-                self.constructors
-                    .iter()
-                    .filter(|m| m.is_private())
-                    .for_each(|m| {
-                        m.do_fmt(fmt, decl_only).expect("format failed");
-                    });
+                self.constructors.iter().filter(|m| m.is_private()).for_each(|m| {
+                    m.do_fmt(fmt, decl_only).expect("format failed");
+                });
             }
 
             if priv_attr > 0 {
-                self.attributes
-                    .iter()
-                    .filter(|a| a.is_private())
-                    .for_each(|m| {
-                        m.do_fmt(fmt, decl_only).expect("format failed");
-                    });
+                self.attributes.iter().filter(|a| a.is_private()).for_each(|m| {
+                    m.do_fmt(fmt, decl_only).expect("format failed");
+                });
             }
             if priv_methods > 0 {
-                self.methods
-                    .iter()
-                    .filter(|m| m.is_private())
-                    .for_each(|m| {
-                        m.do_fmt(fmt, decl_only).expect("format failed");
-                    });
+                self.methods.iter().filter(|m| m.is_private()).for_each(|m| {
+                    m.do_fmt(fmt, decl_only).expect("format failed");
+                });
             }
             Ok(())
         })?;
@@ -302,8 +271,7 @@ impl Class {
     /// formats the class
     pub fn do_fmt(&self, fmt: &mut Formatter<'_>, decl_only: bool) -> fmt::Result {
         fmt.scope(self.name.as_str(), |fmt| {
-            self.do_fmt_class_scope(fmt, decl_only)
-                .expect("failed to format the class")
+            self.do_fmt_class_scope(fmt, decl_only).expect("failed to format the class")
         });
         Ok(())
     }

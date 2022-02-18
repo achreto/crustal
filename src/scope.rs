@@ -304,8 +304,7 @@ impl Scope {
         };
 
         let mut ret = String::new();
-        self.do_fmt(&mut Formatter::new(&mut ret), only_decls)
-            .unwrap();
+        self.do_fmt(&mut Formatter::new(&mut ret), only_decls).unwrap();
 
         // write the file, return IOError otherwise
         fs::write(file, ret.as_bytes())

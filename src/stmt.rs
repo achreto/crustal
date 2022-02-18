@@ -109,11 +109,7 @@ impl Stmt {
     /// Formats the variant using the given formatter.
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         match self {
-            Stmt::VarDecl {
-                name,
-                ty,
-                is_static,
-            } => {
+            Stmt::VarDecl { name, ty, is_static } => {
                 if *is_static {
                     write!(fmt, "static ")?;
                 }
@@ -168,12 +164,7 @@ impl Stmt {
                     writeln!(fmt, ";")
                 }
             }),
-            Stmt::ForLoop {
-                init,
-                cond,
-                step,
-                body,
-            } => {
+            Stmt::ForLoop { init, cond, step, body } => {
                 write!(fmt, "for (")?;
                 init.fmt(fmt)?;
                 write!(fmt, "; ")?;

@@ -97,6 +97,11 @@ impl Variant {
         self
     }
 
+    /// obtains the name of the variant
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
     /// obtains the current value of the variant
     pub fn value(&self) -> Option<u64> {
         self.value

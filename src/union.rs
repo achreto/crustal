@@ -53,8 +53,13 @@ pub struct Union {
 impl Union {
     /// Returns a new `Union` instance with the given name.
     pub fn new(name: &str) -> Self {
+        Union::with_string(String::from(name))
+    }
+
+    /// Returns a new `Union` instance and consumes the given string
+    pub fn with_string(name: String) -> Self {
         Self {
-            name: String::from(name),
+            name,
             fields: Vec::new(),
             doc: None,
             attributes: Vec::new(),
@@ -108,6 +113,26 @@ impl Union {
     pub fn push_field(&mut self, item: Field) -> &mut Self {
         self.fields.push(item);
         self
+    }
+
+    /// obtains a reference to the field with the given name
+    pub fn field_by_name(&self, name: &str) -> Option<&Field> {
+        self.fields.iter().find(|f| f.name() == name)
+    }
+
+    /// obtains a mutable reference to the field with the given name
+    pub fn field_by_name_mut(&mut self, name: &str) -> Option<&mut Field> {
+        self.fields.iter_mut().find(|f| f.name() == name)
+    }
+
+    /// obtains a reference to the field with the given index (starting at 0)
+    pub fn field_by_idx(&self, idx: usize) -> Option<&Field> {
+        self.fields.get(idx)
+    }
+
+    /// obtains a mutable reference to the field with the given index mut
+    pub fn field_by_idx_mut(&mut self, idx: usize) -> Option<&mut Field> {
+        self.fields.get_mut(idx)
     }
 
     /// adds a new attribute to the union

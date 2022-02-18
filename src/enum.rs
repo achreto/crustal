@@ -98,6 +98,26 @@ impl Enum {
         self
     }
 
+    /// obtains a reference to the field with the given name
+    pub fn variant_by_name(&self, name: &str) -> Option<&Variant> {
+        self.variants.iter().find(|f| f.name() == name)
+    }
+
+    /// obtains a mutable reference to the field with the given name
+    pub fn variant_by_name_mut(&mut self, name: &str) -> Option<&mut Variant> {
+        self.variants.iter_mut().find(|f| f.name() == name)
+    }
+
+    /// obtains a reference to the field with the given index (starting at 0)
+    pub fn variant_by_idx(&self, idx: usize) -> Option<&Variant> {
+        self.variants.get(idx)
+    }
+
+    /// obtains a mutable reference to the field with the given index mut
+    pub fn variant_by_idx_mut(&mut self, idx: usize) -> Option<&mut Variant> {
+        self.variants.get_mut(idx)
+    }
+
     /// Formats a forward declaration for the enum
     pub fn fmt_decl(&self, fmt: &mut Formatter) -> fmt::Result {
         write!(fmt, "enum {};   // forward declaration", self.name)

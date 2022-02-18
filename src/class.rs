@@ -119,6 +119,26 @@ impl Class {
         self
     }
 
+    /// obtains a reference to the field with the given name
+    pub fn attribute_by_name(&self, name: &str) -> Option<&Attribute> {
+        self.attributes.iter().find(|f| f.name() == name)
+    }
+
+    /// obtains a mutable reference to the field with the given name
+    pub fn attribute_by_name_mut(&mut self, name: &str) -> Option<&mut Attribute> {
+        self.attributes.iter_mut().find(|f| f.name() == name)
+    }
+
+    /// obtains a reference to the field with the given index (starting at 0)
+    pub fn attribute_by_idx(&self, idx: usize) -> Option<&Attribute> {
+        self.attributes.get(idx)
+    }
+
+    /// obtains a mutable reference to the field with the given index mut
+    pub fn attribute_by_idx_mut(&mut self, idx: usize) -> Option<&mut Attribute> {
+        self.attributes.get_mut(idx)
+    }
+
     /// adds a new method member to the class with the given visibility
     pub fn new_method(&mut self, name: &str, ty: Type) -> &mut Method {
         self.methods.push(Method::new(name, ty));

@@ -44,7 +44,7 @@ fn test_fields_bitfields() {
     assert_eq!(t.to_string(), "uint8_t");
 
     let mut f = Field::new("my_field", t);
-    f.bitfield_width(8);
+    f.set_bitfield_width(8);
     assert_eq!(f.to_string(), "uint8_t my_field : 8;\n");
 }
 

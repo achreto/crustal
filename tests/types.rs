@@ -85,10 +85,10 @@ fn types_base_types() {
     let t = Type::new(BaseType::Union(String::from("MyUnion")));
     assert_eq!(t.to_string(), "union MyUnion");
 
-    let t = Type::new(BaseType::Class(String::from("MyClass"), vec![]));
+    let t = Type::new(BaseType::Class(String::from("MyClass")));
     assert_eq!(t.to_string(), "MyClass");
 
-    let t = Type::new(BaseType::Class(
+    let t = Type::new(BaseType::TemplateClass(
         String::from("MyClass"),
         vec![String::from("MyOtherClass")],
     ));
@@ -101,39 +101,34 @@ fn types_base_types() {
 #[test]
 fn types_base_modifiers() {
     let mut t = Type::new(BaseType::Int32);
-    t.volatile_value(true);
+    t.set_value_volatile();
     assert_eq!(t.to_string(), "volatile int32_t");
 
     let mut t = Type::new(BaseType::Int32);
-    t.const_value(true);
+    t.set_value_const();
     assert_eq!(t.to_string(), "const int32_t");
 
     let mut t = Type::new(BaseType::Int32);
-    t.const_value(true).volatile_value(true);
+    t.set_value_const().set_value_volatile();
     assert_eq!(t.to_string(), "volatile int32_t");
 
     let mut t = Type::new(BaseType::Int32);
-    t.volatile_value(true).const_value(true);
+    t.set_value_volatile().set_value_const();
     assert_eq!(t.to_string(), "const int32_t");
 }
 
 #[test]
 fn types_modifiers() {
     let mut t = Type::new(BaseType::Int32);
-    t.volatile_value(true).pointer();
+    t.set_value_volatile().pointer();
     assert_eq!(t.to_string(), "volatile int32_t *");
 
     let mut t = Type::new(BaseType::Int32);
-    t.const_value(true).pointer().constant();
+    t.set_value_const().pointer().constant();
     assert_eq!(t.to_string(), "const int32_t * const");
 
     let mut t = Type::new(BaseType::Int32);
-    t.const_value(true)
-        .pointer()
-        .constant()
-        .pointer()
-        .pointer()
-        .constant();
+    t.set_value_const().pointer().constant().pointer().pointer().constant();
     assert_eq!(t.to_string(), "const int32_t * const * * const");
 }
 
@@ -141,18 +136,13 @@ fn types_modifiers() {
 fn types_modifiers_deref() {
     let mut t = Type::new(BaseType::Int32);
 
-    let t1 = t.from_deref();
+    let t1 = t.to_deref();
     assert!(t1.is_none());
 
-    t.const_value(true)
-        .pointer()
-        .constant()
-        .pointer()
-        .pointer()
-        .constant();
+    t.set_value_const().pointer().constant().pointer().pointer().constant();
     assert_eq!(t.to_string(), "const int32_t * const * * const");
 
-    let t2 = t.from_deref();
+    let t2 = t.to_deref();
     assert!(!t2.is_none());
     assert_eq!(t2.unwrap().to_string(), "const int32_t * const *");
 }

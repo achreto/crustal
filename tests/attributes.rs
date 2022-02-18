@@ -44,7 +44,7 @@ fn test_attributes_bitattributes() {
     assert_eq!(t.to_string(), "uint8_t");
 
     let mut f = Attribute::new("my_field", t);
-    f.bitfield_width(8);
+    f.set_bitfield_width(8);
     assert_eq!(f.to_string(), "uint8_t my_field : 8;\n");
 }
 
@@ -64,7 +64,7 @@ fn test_attributes_initializer() {
     assert_eq!(t.to_string(), "uint8_t");
 
     let mut f = Attribute::new("my_field", t);
-    f.set_value_raw("3");
+    f.set_value(Expr::Raw(String::from("3")));
     assert_eq!(f.to_string(), "uint8_t my_field = 3;\n");
 }
 
@@ -74,6 +74,6 @@ fn test_attributes_modifiers() {
     assert_eq!(t.to_string(), "uint8_t");
 
     let mut f = Attribute::new("my_field", t);
-    f.sstatic();
+    f.set_static();
     assert_eq!(f.to_string(), "static uint8_t my_field;\n");
 }

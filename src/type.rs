@@ -27,8 +27,10 @@
 //!
 //! This module provides functionality to express types in C/C++ programs.
 
+// std library includes
 use std::fmt::{self, Display, Write};
 
+// the formatter
 use crate::formatter::Formatter;
 
 /// Represents the visibility for C++ class members
@@ -59,13 +61,9 @@ impl Visibility {
 
 impl Display for Visibility {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use Visibility::*;
-        match self {
-            Public => write!(f, "public"),
-            Protected => write!(f, "protected"),
-            Private => write!(f, "private"),
-            Default => Ok(()),
-        }
+        let mut ret = String::new();
+        self.fmt(&mut Formatter::new(&mut ret)).unwrap();
+        write!(f, "{}", ret)
     }
 }
 
@@ -108,34 +106,12 @@ pub enum BaseType {
     Struct(String),
     /// a union type `union STRING`
     Union(String),
-    /// class with templates `Foo<T>`
-    Class(String, Vec<String>),
+    /// a simple class
+    Class(String),
+    /// a class with tempaltes
+    TemplateClass(String, Vec<String>),
     /// a typedef `foo_t`
     TypeDef(String),
-}
-
-/// the type modifiers
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum TypeModifier {
-    Ptr,
-    Volatile,
-    Const,
-    Ref,
-}
-
-/// represents a complete type
-#[derive(Debug, Clone)]
-pub struct Type {
-    /// the base type
-    base: BaseType,
-    /// the type modifiers of the base type
-    mods: Vec<TypeModifier>,
-    /// the number of pointers
-    nptr: u8,
-    /// whether the type is const
-    is_const: bool,
-    /// whether the type is volatile
-    is_volatile: bool,
 }
 
 impl BaseType {
@@ -161,7 +137,8 @@ impl BaseType {
             Enum(s) => write!(fmt, "enum {}", s),
             Struct(s) => write!(fmt, "struct {}", s),
             Union(s) => write!(fmt, "union {}", s),
-            Class(s, t) => {
+            Class(s) => write!(fmt, "{}", s),
+            TemplateClass(s, t) => {
                 if !t.is_empty() {
                     write!(fmt, "{}<{}>", s, t.join(","))
                 } else {
@@ -172,44 +149,85 @@ impl BaseType {
         }
     }
 
-    /// formats the basetype into the supplied formatter
+    /// checks if the base type is an integer type
     pub fn is_integer(&self) -> bool {
         use BaseType::*;
-        matches!(
-            self,
-            Char |
-            UInt8  |
-            UInt16 |
-            UInt32 |
-            UInt64 |
-            Int8 |
-            Int16 |
-            Int32 |
-            Int64 |
-            Size |
-            UIntPtr |
-            Bool |
+        matches!(self, |UInt8| UInt16  | UInt32  | UInt64
+            | Int8  | Int16   | Int32   | Int64
+            | Size  | UIntPtr | Bool    | Char
             // allowing the typedef here
-            TypeDef(_)
-        )
+            | TypeDef(_))
     }
 
     pub fn is_struct(&self) -> bool {
         use BaseType::*;
-        matches!(self, Struct(_) | Union(_) | Class(_, _) | TypeDef(_))
+        matches!(self, Struct(_) | Union(_) | Class(_) | TemplateClass(_, _) | TypeDef(_))
     }
 
-    /// creates a new integer type with a given type
-    pub fn new_int(bits: u64) -> BaseType {
+    /// creates a new unsigned integer type with a given type
+    pub fn new_uint(bits: u64) -> BaseType {
         use BaseType::*;
         match bits {
             8 => UInt8,
             16 => UInt16,
             32 => UInt32,
             64 => UInt64,
-            _ => unreachable!(),
+            _ => {
+                println!("Unsupported integer size: {}. Defaulting to u64", bits);
+                UInt64
+            }
         }
     }
+    /// creates a new signed integer type with a given type
+    pub fn new_int(bits: u64) -> BaseType {
+        use BaseType::*;
+        match bits {
+            8 => Int8,
+            16 => Int16,
+            32 => Int32,
+            64 => Int64,
+            _ => {
+                println!("Unsupported integer size: {}. Defaulting to i64", bits);
+                Int64
+            }
+        }
+    }
+}
+
+impl Display for BaseType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut ret = String::new();
+        self.fmt(&mut Formatter::new(&mut ret)).unwrap();
+        write!(f, "{}", ret)
+    }
+}
+
+/// the type modifiers
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum TypeModifier {
+    /// represents a pointer to the base type
+    Ptr,
+    /// represents a volatile type
+    Volatile,
+    /// represents a constant type
+    Const,
+    /// represents a reference type
+    Ref,
+}
+
+/// The `Type` corresponds to a full type. This is a base type with modifiers.
+#[derive(Debug, Clone)]
+pub struct Type {
+    /// the base type
+    base: BaseType,
+    /// the type modifiers of the base type
+    mods: Vec<TypeModifier>,
+    /// the number of pointers
+    nptr: u8,
+    /// whether the type is const
+    is_const: bool,
+    /// whether the type is volatile
+    is_volatile: bool,
 }
 
 impl TypeModifier {
@@ -237,108 +255,147 @@ impl Type {
         }
     }
 
-    pub fn new_int(bits: u64) -> Self {
-        Type::new(BaseType::new_int(bits))
-    }
-
-    pub fn new_bool() -> Self {
-        Type::new(BaseType::Bool)
-    }
-
-    pub fn new_std_string() -> Self {
-        Type::new(BaseType::Class("std::string".to_string(), Vec::new()))
-    }
-
-    pub fn new_size() -> Self {
-        Type::new(BaseType::Size)
-    }
-
+    /// creates a new void type
     pub fn new_void() -> Self {
         Type::new(BaseType::Void)
     }
 
-    pub fn new_typedef(name: &str) -> Self {
-        Type::new(BaseType::TypeDef(name.to_string()))
+    /// creates a new type description for booleans
+    pub fn new_bool() -> Self {
+        Type::new(BaseType::Bool)
     }
 
-    /// creates a new type for the class
-    pub fn new_class(classname: &str) -> Self {
-        Type::new(BaseType::Class(classname.to_string(), Vec::new()))
+    /// creates a new type description for characters
+    pub fn new_char() -> Self {
+        Type::new(BaseType::Char)
     }
 
-    /// creates a new type for the class
+    /// creates a new type description for signed integers
+    pub fn new_int(bits: u64) -> Self {
+        Type::new(BaseType::new_int(bits))
+    }
+
+    /// creates an new type description for signed chars
+    pub fn new_int8() -> Self {
+        Type::new(BaseType::Int8)
+    }
+
+    /// creates an new type description for signed shorts
+    pub fn new_int16() -> Self {
+        Type::new(BaseType::Int16)
+    }
+
+    /// creates an new type description for signed ints
+    pub fn new_int32() -> Self {
+        Type::new(BaseType::Int32)
+    }
+
+    /// creates an new type description for signed longs
+    pub fn new_int64() -> Self {
+        Type::new(BaseType::Int64)
+    }
+
+    /// creates a new type description for unsigned integers
+    pub fn new_uint(bits: u64) -> Self {
+        Type::new(BaseType::new_uint(bits))
+    }
+
+    /// creates an new type description for unsigned chars
+    pub fn new_uint8() -> Self {
+        Type::new(BaseType::UInt8)
+    }
+
+    /// creates an new type description for unsigned shorts
+    pub fn new_uint16() -> Self {
+        Type::new(BaseType::UInt16)
+    }
+
+    /// creates an new type description for unsigned ints
+    pub fn new_uint32() -> Self {
+        Type::new(BaseType::UInt32)
+    }
+
+    /// creates an new type description for unsigned longs
+    pub fn new_uint64() -> Self {
+        Type::new(BaseType::UInt64)
+    }
+
+    /// creates a new type description for size type
+    pub fn new_size() -> Self {
+        Type::new(BaseType::Size)
+    }
+
+    /// creates a new type description for a pointer-sized integer
+    pub fn new_uintptr() -> Self {
+        Type::new(BaseType::UIntPtr)
+    }
+
+    /// creates a new type description for the C++ `std::string`
+    pub fn new_std_string() -> Self {
+        Type::new_class("std::string")
+    }
+
+    /// creates a new type description for a C-like string
+    pub fn new_cstr() -> Self {
+        let mut t = Type::new_char();
+        t.pointer();
+        t
+    }
+
+    /// creates a new type for an enum
     pub fn new_enum(name: &str) -> Self {
         Type::new(BaseType::Enum(String::from(name)))
     }
 
+    /// creates a new type for an struct
     pub fn new_struct(name: &str) -> Self {
         Type::new(BaseType::Struct(String::from(name)))
     }
 
+    /// creates a new type for an union
     pub fn new_union(name: &str) -> Self {
         Type::new(BaseType::Union(String::from(name)))
     }
 
-    /// obtainst the base type of the type
-    pub fn basetype(&self) -> &BaseType {
-        &self.base
+    /// creates a new type for a class
+    pub fn new_class(name: &str) -> Self {
+        Type::new(BaseType::Class(String::from(name)))
     }
 
-    /// checks if the type is a struct type
-    pub fn is_struct(&self) -> bool {
-        self.base.is_struct()
+    /// creates a new type for a given typedef
+    pub fn new_typedef(name: &str) -> Self {
+        Type::new(BaseType::TypeDef(name.to_string()))
     }
 
-    /// returns true if the base type is an integer
-    pub fn is_integer(&self) -> bool {
-        if self.nptr != 0 {
-            return false;
-        }
-        self.base.is_integer()
-    }
-
-    /// returns true if the type represents a pointer value
-    pub fn is_ptr(&self) -> bool {
-        if self.nptr > 0 {
-            return true;
-        }
-        // typedefs may always be pointers
-        if let BaseType::TypeDef(_) = &self.base {
-            return true;
-        }
-        false
-    }
-
-    /// create a new type from by taking a pointer of it
+    /// creates a new type from `self` by taking a pointer of it.
     ///
     /// # Example
     ///
     /// `int` => `int *`
-    pub fn from_ptr(&self) -> Self {
-        assert!(self.nptr < 32);
+    pub fn to_ptr(&self) -> Self {
         let mut n = self.clone();
         n.mods.push(TypeModifier::Ptr);
         n.nptr += 1;
         n
     }
 
-    /// create a new type from by taking a reference of it
+    /// creates a new type from `self` by taking a reference of it
     ///
     /// # Example
     ///
     /// `int` => `int &`
-    pub fn from_ref(&self) -> Self {
+    pub fn to_ref(&self) -> Self {
         let mut n = self.clone();
         n.mods.push(TypeModifier::Ref);
         n
     }
 
-    /// obtais a new type by dereferencing the pointer type
+    /// obtais a new type from `self` by dereferencing the pointer
     ///
     /// # Example
     ///
     /// `int **` => `int *`
-    pub fn from_deref(&self) -> Option<Self> {
+    pub fn to_deref(&self) -> Option<Self> {
         if self.nptr == 0 {
             return None;
         }
@@ -361,33 +418,68 @@ impl Type {
         Some(n)
     }
 
-    /// create a new type by it const
+    /// create a new type from `self` by adding a const modifier
     ///
     /// # Example
     ///
     /// `int *` => `int * const`
-    pub fn from_const(&mut self) -> Self {
+    pub fn to_const(&mut self) -> Self {
         let mut n = self.clone();
         n.mods.push(TypeModifier::Const);
         n
     }
 
-    /// create a new type by making it volatile
+    /// create a new type from `self` by adding a volatile modifier
     ///
     /// # Example
     ///
     /// `int *` => `int * volatile`
-    pub fn from_volatile(&mut self) -> &mut Self {
+    pub fn to_volatile(&mut self) -> &mut Self {
         self.mods.push(TypeModifier::Volatile);
         self
     }
 
-    /// sets the type of the object to be volatile
+    /// obtainst the base type of the type
+    pub fn basetype(&self) -> &BaseType {
+        &self.base
+    }
+
+    /// checks if the type is a struct type
+    pub fn is_struct(&self) -> bool {
+        self.base.is_struct()
+    }
+
+    /// returns true if this type represents an integer value.
+    /// If there is a pointer or a reference, this returns false.
+    ///
+    /// Note: typedefs will be returned as `true` here.
+    pub fn is_integer(&self) -> bool {
+        if self.nptr != 0 {
+            return false;
+        }
+        self.base.is_integer()
+    }
+
+    /// returns true if the type represents a pointer value
+    ///
+    /// Note: if the type is a typedef, this will return true.
+    pub fn is_ptr(&self) -> bool {
+        if self.nptr > 0 {
+            return true;
+        }
+        // typedefs may always be pointers
+        if let BaseType::TypeDef(_) = &self.base {
+            return true;
+        }
+        false
+    }
+
+    /// toggles whether the value of the type is volatile
     ///
     /// # Example
     ///
     /// `int *` => `volatile int *`
-    pub fn volatile_value(&mut self, val: bool) -> &mut Self {
+    pub fn toggle_value_volatile(&mut self, val: bool) -> &mut Self {
         self.is_volatile = val;
         if val {
             self.is_const = false;
@@ -395,12 +487,17 @@ impl Type {
         self
     }
 
-    /// sets the type of the object to be const
+    /// sets the value of the type to be volatile
+    pub fn set_value_volatile(&mut self) -> &mut Self {
+        self.toggle_value_volatile(true)
+    }
+
+    /// toggles whether the value of the type is const
     ///
     /// # Example
     ///
     /// `int *` => `const int *`
-    pub fn const_value(&mut self, val: bool) -> &mut Self {
+    pub fn toggle_value_const(&mut self, val: bool) -> &mut Self {
         self.is_const = val;
         if val {
             self.is_volatile = false;
@@ -408,7 +505,12 @@ impl Type {
         self
     }
 
-    /// makes the current type a pointer type
+    /// sets the value of the type to be const
+    pub fn set_value_const(&mut self) -> &mut Self {
+        self.toggle_value_const(true)
+    }
+
+    /// adds a pointer modifier to the current type
     ///
     /// # Example
     ///
@@ -420,7 +522,7 @@ impl Type {
         self
     }
 
-    /// makes the current type a pointer type
+    /// adds a reference modifier to the current type
     ///
     /// # Example
     ///
@@ -430,7 +532,7 @@ impl Type {
         self
     }
 
-    /// makes the current type a const type
+    /// adds a const modifier to the current type
     ///
     /// # Example
     ///
@@ -440,7 +542,7 @@ impl Type {
         self
     }
 
-    /// makes the current  type volatile
+    /// adds a volatile modifier to the current type
     ///
     /// # Example
     ///

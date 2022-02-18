@@ -30,7 +30,7 @@
 
 use std::fmt::{self, Display, Write};
 
-use crate::{Doc, Formatter, Type};
+use crate::{Doc, Expr, Formatter, Type};
 
 /// Defines an struct field
 #[derive(Debug, Clone)]
@@ -42,7 +42,7 @@ pub struct Variable {
     ty: Type,
 
     /// the value if the attribute is constant
-    value: Option<String>,
+    value: Option<Expr>,
 
     /// whether or not the variable is static
     is_static: bool,
@@ -67,11 +67,11 @@ impl Variable {
         }
     }
 
-    pub fn with_value(name: &str, ty: Type, val: &str) -> Self {
+    pub fn with_value(name: &str, ty: Type, val: Expr) -> Self {
         Variable {
             name: String::from(name),
             ty,
-            value: Some(String::from(val)),
+            value: Some(val),
             is_static: false,
             is_extern: false,
             doc: None,
@@ -105,7 +105,7 @@ impl Variable {
     }
 
     /// changes the static modifier
-    pub fn set_static(&mut self, val: bool) -> &mut Self {
+    pub fn toggle_static(&mut self, val: bool) -> &mut Self {
         if val {
             self.is_extern = false;
         }
@@ -114,12 +114,12 @@ impl Variable {
     }
 
     /// makes the variable static
-    pub fn sstatic(&mut self) -> &mut Self {
-        self.set_static(true)
+    pub fn set_static(&mut self) -> &mut Self {
+        self.toggle_static(true)
     }
 
     /// changes the extern modifier
-    pub fn set_extern(&mut self, val: bool) -> &mut Self {
+    pub fn toggle_extern(&mut self, val: bool) -> &mut Self {
         if val {
             self.is_static = false;
         }
@@ -128,14 +128,18 @@ impl Variable {
     }
 
     /// makes the variable static
-    pub fn eextern(&mut self) -> &mut Self {
-        self.set_extern(true)
+    pub fn set_extern(&mut self) -> &mut Self {
+        self.toggle_extern(true)
+    }
+
+    pub fn set_value(&mut self, val: Expr) -> &mut Self {
+        self.value = Some(val);
+        self
     }
 
     /// sets the default value of the attribute
     pub fn set_value_raw(&mut self, val: &str) -> &mut Self {
-        self.value = Some(String::from(val));
-        self
+        self.set_value(Expr::Raw(String::from(val)))
     }
 
     /// the formatting

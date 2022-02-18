@@ -171,14 +171,14 @@ impl Attribute {
     }
 
     /// sets the static property of the attribute
-    pub fn set_static_val(&mut self, val: bool) -> &mut Self {
+    pub fn toggle_static(&mut self, val: bool) -> &mut Self {
         self.is_static = val;
         self
     }
 
     /// makes the attribute static
     pub fn set_static(&mut self) -> &mut Self {
-        self.set_static_val(true)
+        self.toggle_static(true)
     }
 
     /// tests whether the attribute is static

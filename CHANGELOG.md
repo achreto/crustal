@@ -1,6 +1,7 @@
 # 0.1.5 ()
 
  - adding methods to lookup parameters in functions / methods / constructors
+ - conversion of attributes/variables/parameters to Expr::Variables
 
 # 0.1.4 (February 18, 2022)
 

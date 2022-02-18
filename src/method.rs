@@ -25,17 +25,12 @@
 
 //! # Method
 //!
-//! This module contains definitions for C++ class methods
+//! This module contains definitions for C++ class methods. Note that this is
+//! for ordinary methods only, not constructors or destructors.
 
 use std::fmt::{self, Write};
 
 use crate::{Doc, Formatter, MethodParam, Stmt, Type, Visibility};
-
-//
-//Default constructor
-// Copy constructor
-// Move constructor
-// Destructor
 
 /// holds a method definition
 #[derive(Debug, Clone)]
@@ -83,8 +78,12 @@ pub struct Method {
 impl Method {
     /// Creates a new method definition
     pub fn new(name: &str, ret: Type) -> Self {
+        Self::with_string(String::from(name), ret)
+    }
+
+    pub fn with_string(name: String, ret: Type) -> Self {
         Self {
-            name: String::from(name),
+            name,
             doc: None,
             visibility: Visibility::Private,
             params: Vec::new(),
@@ -103,6 +102,11 @@ impl Method {
     /// returns the name of the method
     pub fn name(&self) -> &str {
         &self.name
+    }
+
+    /// obtains the type for this function
+    pub fn to_type(&self) -> Type {
+        panic!("needs to implement a corresponding type.")
     }
 
     /// adds a string to the documentation comment to the variant
@@ -143,17 +147,17 @@ impl Method {
     }
 
     /// sets the visibility to public
-    pub fn public(&mut self) -> &mut Self {
+    pub fn set_public(&mut self) -> &mut Self {
         self.set_visibility(Visibility::Public)
     }
 
     /// sets the visibility to protected
-    pub fn protected(&mut self) -> &mut Self {
+    pub fn set_protected(&mut self) -> &mut Self {
         self.set_visibility(Visibility::Protected)
     }
 
     /// sets the visibility to private
-    pub fn private(&mut self) -> &mut Self {
+    pub fn set_private(&mut self) -> &mut Self {
         self.set_visibility(Visibility::Private)
     }
 
@@ -163,6 +167,7 @@ impl Method {
         self
     }
 
+    /// creates a new param and adds it to the method
     pub fn new_param(&mut self, name: &str, ty: Type) -> &mut MethodParam {
         self.push_param(MethodParam::new(name, ty));
         self.params.last_mut().unwrap()
@@ -193,14 +198,14 @@ impl Method {
     /// # Example
     ///
     /// void foo()   -> void foo() override
-    pub fn set_override(&mut self, val: bool) -> &mut Self {
+    pub fn toggle_override(&mut self, val: bool) -> &mut Self {
         self.is_override = val;
         self
     }
 
     /// sets the method to override
-    pub fn overrid(&mut self) -> &mut Self {
-        self.set_override(true)
+    pub fn set_override(&mut self) -> &mut Self {
+        self.toggle_override(true)
     }
 
     /// sets the constant modifier of the method
@@ -208,14 +213,14 @@ impl Method {
     /// # Example
     ///
     /// void foo()   -> void foo() const
-    pub fn set_const(&mut self, val: bool) -> &mut Self {
+    pub fn toggle_const(&mut self, val: bool) -> &mut Self {
         self.is_const = val;
         self
     }
 
     /// makes the method to be constant
-    pub fn constant(&mut self) -> &mut Self {
-        self.set_const(true)
+    pub fn set_const(&mut self) -> &mut Self {
+        self.toggle_const(true)
     }
 
     /// sets the method to be virtual
@@ -223,7 +228,7 @@ impl Method {
     /// # Example
     ///
     /// void foo()   -> virtual void foo() = 0
-    pub fn set_virtual(&mut self, val: bool) -> &mut Self {
+    pub fn toggle_virtual(&mut self, val: bool) -> &mut Self {
         if !val {
             self.is_pure = false;
         }
@@ -232,8 +237,8 @@ impl Method {
     }
 
     /// makes the method to be virtual
-    pub fn virt(&mut self) -> &mut Self {
-        self.set_virtual(true)
+    pub fn set_virtual(&mut self) -> &mut Self {
+        self.toggle_virtual(true)
     }
 
     /// sets the method to be pure
@@ -241,7 +246,7 @@ impl Method {
     /// # Example
     ///
     /// void foo()   -> virtual void foo() = 0
-    pub fn set_pure(&mut self, val: bool) -> &mut Self {
+    pub fn toggle_pure(&mut self, val: bool) -> &mut Self {
         if val {
             self.body.clear();
             self.is_virtual = true
@@ -251,8 +256,8 @@ impl Method {
     }
 
     /// turns the method into a pure method
-    pub fn pure(&mut self) -> &mut Self {
-        self.set_pure(true)
+    pub fn set_pure(&mut self) -> &mut Self {
+        self.toggle_pure(true)
     }
 
     /// sets the method to be static
@@ -260,14 +265,14 @@ impl Method {
     /// # Example
     ///
     /// void foo()   -> static void foo()
-    pub fn set_static(&mut self, val: bool) -> &mut Self {
+    pub fn toggle_static(&mut self, val: bool) -> &mut Self {
         self.is_static = val;
         self
     }
 
     /// makes the method to be an static method
-    pub fn sstatic(&mut self) -> &mut Self {
-        self.set_static(true)
+    pub fn set_static(&mut self) -> &mut Self {
+        self.toggle_static(true)
     }
 
     /// sets the method to be inline
@@ -275,25 +280,25 @@ impl Method {
     /// # Example
     ///
     /// void foo()   -> inline void foo()
-    pub fn set_inline(&mut self, val: bool) -> &mut Self {
+    pub fn toggle_inline(&mut self, val: bool) -> &mut Self {
         self.is_inline = val;
         self
     }
 
     /// makes the method to be an inline method
-    pub fn inline(&mut self) -> &mut Self {
-        self.set_inline(true)
+    pub fn set_inline(&mut self) -> &mut Self {
+        self.toggle_inline(true)
     }
 
     /// sets the definition localtion of the method
-    pub fn set_inside_def(&mut self, val: bool) -> &mut Self {
+    pub fn toggle_inside_def(&mut self, val: bool) -> &mut Self {
         self.is_inside = val;
         self
     }
 
     /// this method is defined inside
-    pub fn inside_def(&mut self) -> &mut Self {
-        self.set_inside_def(true)
+    pub fn set_inside_def(&mut self) -> &mut Self {
+        self.toggle_inside_def(true)
     }
 
     /// sets the body for the method

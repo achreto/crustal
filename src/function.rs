@@ -64,10 +64,15 @@ pub struct Function {
 }
 
 impl Function {
-    /// Returns a new function
+    /// Creates a new function
     pub fn new(name: &str, ret: Type) -> Self {
+        Self::with_string(String::from(name), ret)
+    }
+
+    /// creates a new function with the given name and return type
+    pub fn with_string(name: String, ret: Type) -> Self {
         Self {
-            name: String::from(name),
+            name,
             doc: None,
             params: Vec::new(),
             ret,
@@ -82,21 +87,6 @@ impl Function {
     /// returns the name of the method
     pub fn name(&self) -> &str {
         &self.name
-    }
-
-    /// returns the declaration for this function without the body
-    pub fn to_decl(&self) -> Self {
-        Self {
-            name: self.name.clone(),
-            doc: None,
-            params: self.params.clone(),
-            ret: self.ret.clone(),
-            attributes: Vec::new(),
-            is_static: self.is_static,
-            is_inline: self.is_inline,
-            is_extern: self.is_extern,
-            body: Vec::new(),
-        }
     }
 
     /// obtains the type for this function

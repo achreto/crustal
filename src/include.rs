@@ -47,8 +47,13 @@ pub struct Include {
 impl Include {
     /// Creates a new `Include` struct for project headers
     pub fn new(path: &str) -> Self {
+        Self::with_string(String::from(path))
+    }
+
+    /// creates a new include with a given string
+    pub fn with_string(path: String) -> Self {
         Include {
-            path: String::from(path),
+            path,
             is_system: false,
             doc: None,
         }

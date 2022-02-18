@@ -44,7 +44,7 @@ pub struct Constructor {
     doc: Option<Doc>,
 
     /// the method arguments
-    args: Vec<MethodParam>,
+    params: Vec<MethodParam>,
 
     /// the initalizer list
     initializers: Vec<Expr>,
@@ -75,7 +75,7 @@ impl Constructor {
             name: String::from(name),
             doc: None,
             visibility: Visibility::Public,
-            args: Vec::new(),
+            params: Vec::new(),
             initializers: Vec::new(),
             is_default: false,
             is_delete: false,
@@ -166,15 +166,35 @@ impl Constructor {
         self.set_visibility(Visibility::Private)
     }
 
-    /// adds an argument to the method
-    pub fn push_argument(&mut self, arg: MethodParam) -> &mut Self {
-        self.args.push(arg);
+    /// adds an param to the method
+    pub fn push_param(&mut self, arg: MethodParam) -> &mut Self {
+        self.params.push(arg);
         self
     }
 
-    pub fn new_argument(&mut self, name: &str, ty: Type) -> &mut MethodParam {
-        self.push_argument(MethodParam::new(name, ty));
-        self.args.last_mut().unwrap()
+    pub fn new_param(&mut self, name: &str, ty: Type) -> &mut MethodParam {
+        self.push_param(MethodParam::new(name, ty));
+        self.params.last_mut().unwrap()
+    }
+
+    /// obtains a reference to the param with the given name
+    pub fn param_by_name(&self, name: &str) -> Option<&MethodParam> {
+        self.params.iter().find(|f| f.name() == name)
+    }
+
+    /// obtains a mutable reference to the param with the given name
+    pub fn param_by_name_mut(&mut self, name: &str) -> Option<&mut MethodParam> {
+        self.params.iter_mut().find(|f| f.name() == name)
+    }
+
+    /// obtains a reference to the param with the given index (starting at 0)
+    pub fn param_by_idx(&self, idx: usize) -> Option<&MethodParam> {
+        self.params.get(idx)
+    }
+
+    /// obtains a mutable reference to the param with the given index mut
+    pub fn param_by_idx_mut(&mut self, idx: usize) -> Option<&mut MethodParam> {
+        self.params.get_mut(idx)
     }
 
     /// pushes a new elemenet to the initializer list
@@ -200,7 +220,7 @@ impl Constructor {
         if val {
             self.body.clear();
             if !self.is_copy {
-                self.args.clear();
+                self.params.clear();
             }
             self.is_delete = false;
         }
@@ -222,7 +242,7 @@ impl Constructor {
         if val {
             self.body.clear();
             if !self.is_copy {
-                self.args.clear();
+                self.params.clear();
             }
             self.is_default = false;
         }
@@ -244,7 +264,7 @@ impl Constructor {
         if val {
             let mut ty = Type::new(BaseType::Class(self.name.clone()));
             ty.constant().reference();
-            self.args = vec![MethodParam::new("other", ty)];
+            self.params = vec![MethodParam::new("other", ty)];
         }
         self.is_copy = val;
         self
@@ -264,7 +284,7 @@ impl Constructor {
         if val {
             let mut ty = Type::new(BaseType::Class(self.name.clone()));
             ty.reference().reference();
-            self.args = vec![MethodParam::new("other", ty)];
+            self.params = vec![MethodParam::new("other", ty)];
         }
         self.is_move = val;
         self
@@ -320,11 +340,11 @@ impl Constructor {
             fmt.write_scoped_name(self.name.as_str())?;
         }
 
-        if self.args.is_empty() {
+        if self.params.is_empty() {
             write!(fmt, "(void)")?;
         } else {
             write!(fmt, "(")?;
-            for (i, arg) in self.args.iter().enumerate() {
+            for (i, arg) in self.params.iter().enumerate() {
                 if i != 0 {
                     write!(fmt, ", ")?;
                 }

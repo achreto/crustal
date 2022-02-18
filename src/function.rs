@@ -79,6 +79,11 @@ impl Function {
         }
     }
 
+    /// returns the name of the method
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
     /// returns the declaration for this function without the body
     pub fn to_decl(&self) -> Self {
         Self {
@@ -132,23 +137,24 @@ impl Function {
         self
     }
 
-    /// obtains the parameter of the function
-    pub fn get_param(&self, idx: usize) -> Option<&FunctionParam> {
-        if idx < self.params.len() {
-            Some(&self.params[idx])
-        } else {
-            None
-        }
+    /// obtains a reference to the param with the given name
+    pub fn param_by_name(&self, name: &str) -> Option<&FunctionParam> {
+        self.params.iter().find(|f| f.name() == name)
     }
 
-    /// obtains a param by name
-    pub fn get_param_by_name(&self, name: &str) -> Option<&FunctionParam> {
-        for p in &self.params {
-            if p.name() == name {
-                return Some(p);
-            }
-        }
-        None
+    /// obtains a mutable reference to the param with the given name
+    pub fn param_by_name_mut(&mut self, name: &str) -> Option<&mut FunctionParam> {
+        self.params.iter_mut().find(|f| f.name() == name)
+    }
+
+    /// obtains a reference to the param with the given index (starting at 0)
+    pub fn param_by_idx(&self, idx: usize) -> Option<&FunctionParam> {
+        self.params.get(idx)
+    }
+
+    /// obtains a mutable reference to the param with the given index mut
+    pub fn param_by_idx_mut(&mut self, idx: usize) -> Option<&mut FunctionParam> {
+        self.params.get_mut(idx)
     }
 
     /// adds a new attribute to the function

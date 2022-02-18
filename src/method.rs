@@ -49,8 +49,8 @@ pub struct Method {
     /// the method documentation
     doc: Option<Doc>,
 
-    /// the method arguments
-    args: Vec<MethodParam>,
+    /// the method parameters
+    params: Vec<MethodParam>,
 
     /// the return type of the method
     ret: Type,
@@ -87,7 +87,7 @@ impl Method {
             name: String::from(name),
             doc: None,
             visibility: Visibility::Private,
-            args: Vec::new(),
+            params: Vec::new(),
             ret,
             is_static: false,
             is_inline: false,
@@ -98,6 +98,11 @@ impl Method {
             is_inside: false,
             body: Vec::new(),
         }
+    }
+
+    /// returns the name of the method
+    pub fn name(&self) -> &str {
+        &self.name
     }
 
     /// adds a string to the documentation comment to the variant
@@ -153,14 +158,34 @@ impl Method {
     }
 
     /// adds an argument to the method
-    pub fn push_argument(&mut self, arg: MethodParam) -> &mut Self {
-        self.args.push(arg);
+    pub fn push_param(&mut self, arg: MethodParam) -> &mut Self {
+        self.params.push(arg);
         self
     }
 
-    pub fn new_argument(&mut self, name: &str, ty: Type) -> &mut MethodParam {
-        self.push_argument(MethodParam::new(name, ty));
-        self.args.last_mut().unwrap()
+    pub fn new_param(&mut self, name: &str, ty: Type) -> &mut MethodParam {
+        self.push_param(MethodParam::new(name, ty));
+        self.params.last_mut().unwrap()
+    }
+
+    /// obtains a reference to the param with the given name
+    pub fn param_by_name(&self, name: &str) -> Option<&MethodParam> {
+        self.params.iter().find(|f| f.name() == name)
+    }
+
+    /// obtains a mutable reference to the param with the given name
+    pub fn param_by_name_mut(&mut self, name: &str) -> Option<&mut MethodParam> {
+        self.params.iter_mut().find(|f| f.name() == name)
+    }
+
+    /// obtains a reference to the param with the given index (starting at 0)
+    pub fn param_by_idx(&self, idx: usize) -> Option<&MethodParam> {
+        self.params.get(idx)
+    }
+
+    /// obtains a mutable reference to the param with the given index mut
+    pub fn param_by_idx_mut(&mut self, idx: usize) -> Option<&mut MethodParam> {
+        self.params.get_mut(idx)
     }
 
     /// sets the method to be overridden
@@ -315,11 +340,11 @@ impl Method {
         } else {
             fmt.write_scoped_name(self.name.as_str())?;
         }
-        if self.args.is_empty() {
+        if self.params.is_empty() {
             write!(fmt, "(void)")?;
         } else {
             write!(fmt, "(")?;
-            for (i, arg) in self.args.iter().enumerate() {
+            for (i, arg) in self.params.iter().enumerate() {
                 if i != 0 {
                     write!(fmt, ", ")?;
                 }

@@ -119,22 +119,22 @@ impl Class {
         self
     }
 
-    /// obtains a reference to the field with the given name
+    /// obtains a reference to the attribute with the given name
     pub fn attribute_by_name(&self, name: &str) -> Option<&Attribute> {
         self.attributes.iter().find(|f| f.name() == name)
     }
 
-    /// obtains a mutable reference to the field with the given name
+    /// obtains a mutable reference to the attribute with the given name
     pub fn attribute_by_name_mut(&mut self, name: &str) -> Option<&mut Attribute> {
         self.attributes.iter_mut().find(|f| f.name() == name)
     }
 
-    /// obtains a reference to the field with the given index (starting at 0)
+    /// obtains a reference to the attribute with the given index (starting at 0)
     pub fn attribute_by_idx(&self, idx: usize) -> Option<&Attribute> {
         self.attributes.get(idx)
     }
 
-    /// obtains a mutable reference to the field with the given index mut
+    /// obtains a mutable reference to the attribute with the given index mut
     pub fn attribute_by_idx_mut(&mut self, idx: usize) -> Option<&mut Attribute> {
         self.attributes.get_mut(idx)
     }
@@ -145,10 +145,22 @@ impl Class {
         self.methods.last_mut().unwrap()
     }
 
-    /// adds the field member to the class with the given visibility
+    /// adds the method member to the class with the given visibility
     pub fn push_method(&mut self, method: Method) -> &mut Self {
         self.methods.push(method);
         self
+    }
+
+    /// obtains a reference to the method with the given name
+    /// /// NOTE: returns the first method with the given name, doesn't support overloading
+    pub fn method_by_name(&self, name: &str) -> Option<&Method> {
+        self.methods.iter().find(|f| f.name() == name)
+    }
+
+    /// obtains a mutable reference to the method with the given name
+    /// NOTE: returns the first method with the given name, doesn't support overloading
+    pub fn method_by_name_mut(&mut self, name: &str) -> Option<&mut Method> {
+        self.methods.iter_mut().find(|f| f.name() == name)
     }
 
     pub fn new_constructor(&mut self) -> &mut Constructor {

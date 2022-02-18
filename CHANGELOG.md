@@ -1,3 +1,7 @@
+# 0.1.5 ()
+
+ - adding methods to lookup parameters in functions / methods / constructors
+
 # 0.1.4 (February 18, 2022)
 
  - Various new constructors (e.g., that consume the created string directly)

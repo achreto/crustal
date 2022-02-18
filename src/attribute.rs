@@ -71,8 +71,13 @@ impl Attribute {
     /// Creates a new `Attribute` with a given `name` and `type`. The attribute is
     /// private by default.
     pub fn new(name: &str, ty: Type) -> Self {
+        Attribute::with_string(String::from(name), ty)
+    }
+
+    /// Creates a new `Attribute` and consumes the given name
+    pub fn with_string(name: String, ty: Type) -> Self {
         Attribute {
-            name: String::from(name),
+            name,
             ty,
             visibility: Visibility::Default,
             width: None,

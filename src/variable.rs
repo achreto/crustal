@@ -57,8 +57,13 @@ pub struct Variable {
 impl Variable {
     /// Creates a new `Variable`
     pub fn new(name: &str, ty: Type) -> Self {
+        Variable::with_string(String::from(name), ty)
+    }
+
+    /// Creates a new `Variable` and consumes the given string
+    pub fn with_string(name: String, ty: Type) -> Self {
         Variable {
-            name: String::from(name),
+            name,
             ty,
             value: None,
             is_static: false,
@@ -67,9 +72,15 @@ impl Variable {
         }
     }
 
+    /// Creates a new `Variable` with a given value
     pub fn with_value(name: &str, ty: Type, val: Expr) -> Self {
+        Variable::with_string_and_value(String::from(name), ty, val)
+    }
+
+    /// Creates a new `Variable` with a given value and consumes the given string
+    pub fn with_string_and_value(name: String, ty: Type, val: Expr) -> Self {
         Variable {
-            name: String::from(name),
+            name,
             ty,
             value: Some(val),
             is_static: false,

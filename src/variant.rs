@@ -49,18 +49,28 @@ pub struct Variant {
 impl Variant {
     /// Creates a new `Variant`
     pub fn new(name: &str) -> Self {
+        Variant::with_string(String::from(name))
+    }
+
+    /// creates a new `Variant` and consumes the given string
+    pub fn with_string(name: String) -> Self {
         Variant {
-            name: String::from(name),
+            name,
             value: None,
             doc: None,
         }
     }
 
-    /// Creates a new `Variant`
-    pub fn new_with_value(name: &str, value: Option<u64>) -> Self {
+    /// Creates a new `Variant` with a given value
+    pub fn new_with_value(name: &str, value: u64) -> Self {
+        Variant::with_string_and_value(String::from(name), value)
+    }
+
+    /// creates a new `Variant` and consumes the given string and value
+    pub fn with_string_and_value(name: String, value: u64) -> Self {
         Variant {
-            name: String::from(name),
-            value,
+            name,
+            value: Some(value),
             doc: None,
         }
     }

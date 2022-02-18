@@ -51,8 +51,13 @@ pub struct Field {
 impl Field {
     /// Creates a new `Field`
     pub fn new(name: &str, ty: Type) -> Self {
+        Field::with_string(String::from(name), ty)
+    }
+
+    /// Creates a new `Field` and consumes the name
+    pub fn with_string(name: String, ty: Type) -> Self {
         Field {
-            name: String::from(name),
+            name,
             ty,
             width: None,
             doc: None,

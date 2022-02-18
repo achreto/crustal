@@ -29,7 +29,7 @@
 
 use std::fmt::{self, Display, Write};
 
-use crate::{BaseType, Formatter, FunctionParam, MethodParam, Type};
+use crate::{Attribute, BaseType, Formatter, FunctionParam, MethodParam, Type};
 
 /// Defines an statement
 #[derive(Debug, Clone)]
@@ -81,13 +81,6 @@ pub enum Expr {
 }
 
 impl Expr {
-    pub fn from_method_param(p: &MethodParam) -> Self {
-        Expr::Variable {
-            name: p.name().to_string(),
-            ty: p.to_type(),
-        }
-    }
-
     pub fn new_str(s: &str) -> Self {
         Expr::ConstString(s.to_string())
     }
@@ -127,10 +120,15 @@ impl Expr {
     }
 
     pub fn from_fn_param(p: &FunctionParam) -> Self {
-        Expr::Variable {
-            name: p.name().to_string(),
-            ty: p.to_type(),
-        }
+        p.to_expr()
+    }
+
+    pub fn from_method_param(p: &MethodParam) -> Self {
+        p.to_expr()
+    }
+
+    pub fn from_attribuge(p: &Attribute) -> Self {
+        p.to_expr()
     }
 
     pub fn this() -> Self {

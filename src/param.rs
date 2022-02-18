@@ -30,7 +30,7 @@
 
 use std::fmt::{self, Display, Write};
 
-use crate::{Doc, Formatter, Type};
+use crate::{Doc, Expr, Formatter, Type};
 
 /// Defines a function parameter
 #[derive(Debug, Clone)]
@@ -48,23 +48,35 @@ pub struct FunctionParam {
 impl FunctionParam {
     /// Creates a new `Param`
     pub fn new(name: &str, ty: Type) -> Self {
-        FunctionParam {
-            name: String::from(name),
-            ty,
-            doc: None,
-        }
+        Self::with_string(String::from(name), ty)
     }
 
+    /// Creates a new FunctionParam with the given anme
+    pub fn with_string(name: String, ty: Type) -> Self {
+        FunctionParam { name, ty, doc: None }
+    }
+
+    /// returns the name of the parameter
     pub fn name(&self) -> &str {
         &self.name
     }
 
+    /// returns a reference to the type of the parameter
     pub fn type_ref(&self) -> &Type {
         &self.ty
     }
 
+    /// creates a type reference of the parameter type
     pub fn to_type(&self) -> Type {
         self.ty.clone()
+    }
+
+    /// creates an expression from the variable
+    pub fn to_expr(&self) -> Expr {
+        Expr::Variable {
+            name: self.name.clone(),
+            ty: self.ty.clone(),
+        }
     }
 
     /// adds a string to the documentation comment to the parameter
@@ -125,16 +137,27 @@ impl MethodParam {
         }
     }
 
+    /// returns the name of the parameter
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    /// returns a reference to the type of the parameter
     pub fn type_ref(&self) -> &Type {
         &self.ty
     }
 
+    /// creates a type reference of the parameter type
     pub fn to_type(&self) -> Type {
         self.ty.clone()
     }
 
-    pub fn name(&self) -> &str {
-        &self.name
+    /// creates an expression from the variable
+    pub fn to_expr(&self) -> Expr {
+        Expr::Variable {
+            name: self.name.clone(),
+            ty: self.ty.clone(),
+        }
     }
 
     /// adds a string to the documentation comment to the method param
@@ -154,7 +177,7 @@ impl MethodParam {
     }
 
     /// sets the default value of the method parametere
-    pub fn default(&mut self, val: &str) -> &mut Self {
+    pub fn set_default_value(&mut self, val: &str) -> &mut Self {
         self.default = Some(String::from(val));
         self
     }

@@ -72,6 +72,14 @@ impl Variable {
         }
     }
 
+    /// creates an expression from the variable
+    pub fn to_expr(&self) -> Expr {
+        Expr::Variable {
+            name: self.name.clone(),
+            ty: self.ty.clone(),
+        }
+    }
+
     /// Creates a new `Variable` with a given value
     pub fn with_value(name: &str, ty: Type, val: Expr) -> Self {
         Variable::with_string_and_value(String::from(name), ty, val)

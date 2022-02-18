@@ -102,6 +102,14 @@ impl Attribute {
         &self.ty
     }
 
+    /// creates an expression from the attribute; no using the `this->` operator
+    pub fn to_expr(&self) -> Expr {
+        Expr::Variable {
+            name: self.name.clone(),
+            ty: self.ty.clone(),
+        }
+    }
+
     /// returns the visibility of the attribute
     pub fn visibility(&self) -> Visibility {
         self.visibility

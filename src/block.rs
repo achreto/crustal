@@ -47,7 +47,7 @@ enum Item {
     Label(String),
     Raw(String),
     FnCall(String, Vec<Expr>),
-    MethodCall(Expr, Vec<Expr>),
+    MethodCall(Expr, String, Vec<Expr>),
     Break,
     Continue,
     NewLine,
@@ -64,6 +64,12 @@ impl Block {
     /// creates a new, empty block of statements
     pub fn new() -> Self {
         Block { items: Vec::new() }
+    }
+
+    /// merge two blocks
+    pub fn merge(&mut self, other: Block) {
+        let mut other = other;
+        self.items.append(other.items.as_mut());
     }
 
     /// checks whether the body is empty
@@ -259,8 +265,8 @@ impl Block {
     }
 
     /// a method call
-    pub fn method_call(&mut self, m: Expr, args: Vec<Expr>) -> &mut Self {
-        self.items.push(Item::MethodCall(m, args));
+    pub fn method_call(&mut self, obj: Expr, method: &str, args: Vec<Expr>) -> &mut Self {
+        self.items.push(Item::MethodCall(obj, String::from(method), args));
         self
     }
 
@@ -302,9 +308,14 @@ impl Block {
                     }
                     writeln!(fmt, ");")?
                 }
-                Item::MethodCall(m, args) => {
-                    m.fmt(fmt)?;
-                    write!(fmt, "(")?;
+                Item::MethodCall(obj, method, args) => {
+                    obj.fmt(fmt)?;
+                    if obj.is_ptr() {
+                        write!(fmt, "->{}(", method)?;
+                    } else {
+                        write!(fmt, ".{}(", method)?;
+                    }
+
                     for (i, arg) in args.iter().enumerate() {
                         if i > 0 {
                             write!(fmt, ", ")?;

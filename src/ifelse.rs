@@ -79,12 +79,12 @@ impl IfElse {
     }
 
     /// obtains a mutable reference to the then branch of the conditional
-    pub fn then_branch(&mut self) -> &Block {
+    pub fn then_branch(&mut self) -> &mut Block {
         &mut self.then
     }
 
     /// obtains a mutable reference to the else branch of the conditional
-    pub fn other_branch(&mut self) -> &Block {
+    pub fn other_branch(&mut self) -> &mut Block {
         &mut self.other
     }
 

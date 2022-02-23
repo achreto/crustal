@@ -63,7 +63,7 @@ impl WhileLoop {
     }
 
     /// obtains a mutable reference to the body block of the loop
-    pub fn body(&mut self) -> &Block {
+    pub fn body(&mut self) -> &mut Block {
         &mut self.body
     }
 
@@ -118,7 +118,7 @@ impl DoWhileLoop {
     }
 
     /// obtains a mutable reference to the body block of the loop
-    pub fn body(&mut self) -> &Block {
+    pub fn body(&mut self) -> &mut Block {
         &mut self.body
     }
 
@@ -191,7 +191,7 @@ impl ForLoop {
     }
 
     /// obtains a mutable reference to the body block of the loop
-    pub fn body(&mut self) -> &Block {
+    pub fn body(&mut self) -> &mut Block {
         &mut self.body
     }
 

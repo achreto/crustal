@@ -1,3 +1,8 @@
+# 0.1.7 (February 22, 2022)
+
+ - make the blocks returned mutable so new elements can be added
+ - adding method elements with obj expression and function name.
+
 # 0.1.6 (February 22, 2022)
 
  - adding methods to lookup parameters in functions / methods / constructors

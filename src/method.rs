@@ -311,7 +311,7 @@ impl Method {
     }
 
     /// obtains a mutable reference to the body
-    pub fn body(&mut self) -> &Block {
+    pub fn body(&mut self) -> &mut Block {
         &mut self.body
     }
 

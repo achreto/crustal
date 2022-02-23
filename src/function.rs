@@ -30,7 +30,7 @@
 
 use std::fmt::{self, Display, Write};
 
-use crate::{Doc, Formatter, FunctionParam, Stmt, Type};
+use crate::{Block, Doc, Formatter, FunctionParam, Type};
 
 /// defines a C function
 #[derive(Debug, Clone)]
@@ -60,7 +60,7 @@ pub struct Function {
     is_extern: bool,
 
     /// the body of the function, a sequence of statements
-    body: Vec<Stmt>,
+    body: Block,
 }
 
 impl Function {
@@ -80,7 +80,7 @@ impl Function {
             is_static: false,
             is_inline: false,
             is_extern: false,
-            body: Vec::new(),
+            body: Block::new(),
         }
     }
 
@@ -158,7 +158,7 @@ impl Function {
     /// # Example
     ///
     /// void foo()   -> static void foo()
-    pub fn set_static(&mut self, val: bool) -> &mut Self {
+    pub fn toggle_static(&mut self, val: bool) -> &mut Self {
         if val {
             self.is_extern = false;
         }
@@ -167,8 +167,8 @@ impl Function {
     }
 
     /// sets the function to be static
-    pub fn sstatic(&mut self) -> &mut Self {
-        self.set_static(true)
+    pub fn set_static(&mut self) -> &mut Self {
+        self.toggle_static(true)
     }
 
     /// sets the function to be inline
@@ -176,7 +176,7 @@ impl Function {
     /// # Example
     ///
     /// void foo()   -> inline void foo()
-    pub fn set_inline(&mut self, val: bool) -> &mut Self {
+    pub fn toggle_inline(&mut self, val: bool) -> &mut Self {
         if val {
             self.is_extern = false;
         }
@@ -185,8 +185,8 @@ impl Function {
     }
 
     /// makes the function to be an inline method
-    pub fn inline(&mut self) -> &mut Self {
-        self.set_inline(true)
+    pub fn set_inline(&mut self) -> &mut Self {
+        self.toggle_inline(true)
     }
 
     /// sets the function to be extern
@@ -194,7 +194,7 @@ impl Function {
     /// # Example
     ///
     /// void foo()   ->  extern void foo()
-    pub fn set_extern(&mut self, val: bool) -> &mut Self {
+    pub fn toggle_extern(&mut self, val: bool) -> &mut Self {
         if val {
             self.is_inline = false;
             self.is_extern = false;
@@ -204,12 +204,12 @@ impl Function {
     }
 
     /// makes the function to be an inline method
-    pub fn eextern(&mut self) -> &mut Self {
-        self.set_extern(true)
+    pub fn set_extern(&mut self) -> &mut Self {
+        self.toggle_extern(true)
     }
 
     /// sets the body for the function
-    pub fn set_body(&mut self, body: Vec<Stmt>) -> &mut Self {
+    pub fn set_body(&mut self, body: Block) -> &mut Self {
         if !body.is_empty() {
             self.is_extern = false;
         }
@@ -217,11 +217,9 @@ impl Function {
         self
     }
 
-    /// pushes a new statement to the function
-    pub fn push_stmt(&mut self, stmt: Stmt) -> &mut Self {
-        self.is_extern = false;
-        self.body.push(stmt);
-        self
+    /// obtains a reference to the body of the function
+    pub fn body(&mut self) -> &mut Block {
+        &mut self.body
     }
 
     pub fn do_fmt(&self, fmt: &mut Formatter<'_>, decl_only: bool) -> fmt::Result {
@@ -229,7 +227,7 @@ impl Function {
             docs.fmt(fmt)?;
         }
 
-        if self.is_extern {
+        if self.body.is_empty() && self.is_extern {
             write!(fmt, "extern ")?;
         }
 
@@ -263,12 +261,7 @@ impl Function {
 
         // if there is no body, and is inline or we only want the declaration
         if !self.body.is_empty() && (!decl_only || self.is_inline) {
-            fmt.block(|fmt| {
-                for stmt in &self.body {
-                    stmt.fmt(fmt)?;
-                }
-                Ok(())
-            })?;
+            fmt.block(|fmt| self.body.fmt(fmt))?;
             writeln!(fmt)
         } else {
             writeln!(fmt, ";")

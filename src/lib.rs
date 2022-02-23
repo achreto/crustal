@@ -28,6 +28,7 @@
 //! The Cgen Rust library provides a builder API for generating C code.
 
 mod attribute;
+mod block;
 mod class;
 mod comment;
 mod constructor;
@@ -37,11 +38,12 @@ mod field;
 mod formatter;
 mod function;
 mod ifdef;
+mod ifelse;
 mod include;
+mod loops;
 mod method;
 mod param;
 mod scope;
-mod stmt;
 mod union;
 mod variable;
 mod variant;
@@ -52,6 +54,7 @@ mod r#struct;
 mod r#type;
 
 pub use attribute::Attribute;
+pub use block::Block;
 pub use class::Class;
 pub use comment::Comment;
 pub use constructor::{Constructor, Destructor};
@@ -61,12 +64,13 @@ pub use field::Field;
 use formatter::Formatter;
 pub use function::Function;
 pub use ifdef::IfDef;
+pub use ifelse::IfElse;
 pub use include::Include;
+pub use loops::{DoWhileLoop, ForLoop, WhileLoop};
 pub use method::Method;
 pub use param::{FunctionParam, MethodParam};
 pub use r#macro::Macro;
 pub use scope::Scope;
-pub use stmt::Stmt;
 pub use union::Union;
 pub use variable::Variable;
 pub use variant::Variant;

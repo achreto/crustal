@@ -30,7 +30,7 @@
 
 use std::fmt::{self, Write};
 
-use crate::{Doc, Formatter, MethodParam, Stmt, Type, Visibility};
+use crate::{Block, Doc, Formatter, MethodParam, Type, Visibility};
 
 /// holds a method definition
 #[derive(Debug, Clone)]
@@ -72,7 +72,7 @@ pub struct Method {
     is_inside: bool,
 
     /// the body of the method, a sequence of statements
-    body: Vec<Stmt>,
+    body: Block,
 }
 
 impl Method {
@@ -95,7 +95,7 @@ impl Method {
             is_override: false,
             is_const: false,
             is_inside: false,
-            body: Vec::new(),
+            body: Block::new(),
         }
     }
 
@@ -302,7 +302,7 @@ impl Method {
     }
 
     /// sets the body for the method
-    pub fn set_body(&mut self, body: Vec<Stmt>) -> &mut Self {
+    pub fn set_body(&mut self, body: Block) -> &mut Self {
         if !body.is_empty() {
             self.is_pure = false;
         }
@@ -310,11 +310,9 @@ impl Method {
         self
     }
 
-    /// pushes a new statement to the method
-    pub fn push_stmt(&mut self, stmt: Stmt) -> &mut Self {
-        self.is_pure = false;
-        self.body.push(stmt);
-        self
+    /// obtains a mutable reference to the body
+    pub fn body(&mut self) -> &Block {
+        &mut self.body
     }
 
     /// Formats the attribute using the given formatter.
@@ -366,7 +364,7 @@ impl Method {
             write!(fmt, " override")?;
         }
 
-        if self.is_pure && decl_only {
+        if self.body.is_empty() && self.is_pure && decl_only {
             return write!(fmt, " = 0;");
         }
 
@@ -376,14 +374,8 @@ impl Method {
             return writeln!(fmt, ";");
         }
 
-        writeln!(fmt, " {{")?;
-        fmt.indent(|f| {
-            for stmt in &self.body {
-                stmt.fmt(f)?;
-            }
-            Ok(())
-        })?;
-        writeln!(fmt, "}}\n")
+        fmt.block(|f| self.body.fmt(f))?;
+        writeln!(fmt)
     }
 
     /// formats the method definition

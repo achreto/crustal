@@ -185,6 +185,16 @@ impl Variable {
         }
     }
 
+    /// formats the declaration of the variable
+    pub fn fmt_decl(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
+        self.do_fmt(fmt, true)
+    }
+
+    /// formats the definition of the variable
+    pub fn fmt_def(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
+        self.do_fmt(fmt, false)
+    }
+
     /// Formats the variant using the given formatter.
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         if let Some(ref docs) = self.doc {

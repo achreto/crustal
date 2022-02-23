@@ -29,7 +29,7 @@
 
 use std::fmt::{self, Write};
 
-use crate::{BaseType, Doc, Expr, Formatter, MethodParam, Stmt, Type, Visibility};
+use crate::{BaseType, Block, Doc, Expr, Formatter, MethodParam, Type, Visibility};
 
 /// holds a method definition
 #[derive(Debug, Clone)]
@@ -65,7 +65,7 @@ pub struct Constructor {
     is_inside: bool,
 
     /// the body of the method, a sequence of statements
-    body: Vec<Stmt>,
+    body: Block,
 }
 
 impl Constructor {
@@ -82,7 +82,7 @@ impl Constructor {
             is_copy: false,
             is_move: false,
             is_inside: false,
-            body: Vec::new(),
+            body: Block::new(),
         }
     }
 
@@ -307,7 +307,7 @@ impl Constructor {
     }
 
     /// sets the body for the method
-    pub fn set_body(&mut self, body: Vec<Stmt>) -> &mut Self {
+    pub fn set_body(&mut self, body: Block) -> &mut Self {
         if !body.is_empty() {
             self.is_default = false;
             self.is_delete = false;
@@ -316,12 +316,9 @@ impl Constructor {
         self
     }
 
-    /// pushes a new statement to the method
-    pub fn push_stmt(&mut self, stmt: Stmt) -> &mut Self {
-        self.is_default = false;
-        self.is_delete = false;
-        self.body.push(stmt);
-        self
+    /// obtains reference to the body lock
+    pub fn body(&mut self) -> &mut Block {
+        &mut self.body
     }
 
     /// Formats the attribute using the given formatter.
@@ -353,11 +350,11 @@ impl Constructor {
             write!(fmt, ")")?;
         }
 
-        if self.is_default {
+        if self.body.is_empty() && self.is_default {
             return writeln!(fmt, " = default;");
         }
 
-        if self.is_delete {
+        if self.body.is_empty() && self.is_delete {
             return writeln!(fmt, " = delete;");
         }
 
@@ -381,14 +378,8 @@ impl Constructor {
             })
         }
 
-        writeln!(fmt, "{{")?;
-        fmt.indent(|f| {
-            for stmt in &self.body {
-                stmt.fmt(f)?;
-            }
-            Ok(())
-        })?;
-        writeln!(fmt, "}}\n")
+        fmt.block(|f| self.body.fmt(f))?;
+        writeln!(fmt)
     }
 
     /// formats the method definition
@@ -432,7 +423,7 @@ pub struct Destructor {
     is_pure: bool,
 
     /// the body of the method, a sequence of statements
-    body: Vec<Stmt>,
+    body: Block,
 }
 
 impl Destructor {
@@ -445,7 +436,7 @@ impl Destructor {
             is_delete: false,
             is_inside: false,
             is_pure: false,
-            body: Vec::new(),
+            body: Block::new(),
         }
     }
 
@@ -552,7 +543,7 @@ impl Destructor {
     }
 
     /// sets the body for the method
-    pub fn set_body(&mut self, body: Vec<Stmt>) -> &mut Self {
+    pub fn set_body(&mut self, body: Block) -> &mut Self {
         if !body.is_empty() {
             self.is_default = false;
             self.is_delete = false;
@@ -562,13 +553,9 @@ impl Destructor {
         self
     }
 
-    /// pushes a new statement to the method
-    pub fn push_stmt(&mut self, stmt: Stmt) -> &mut Self {
-        self.is_default = false;
-        self.is_delete = false;
-        self.is_pure = false;
-        self.body.push(stmt);
-        self
+    /// obtains a reference to the body of the destructor
+    pub fn body(&mut self) -> &mut Block {
+        &mut self.body
     }
 
     /// Formats the attribute using the given formatter.
@@ -581,17 +568,17 @@ impl Destructor {
             docs.fmt(fmt)?;
         }
 
-        if self.is_pure {
+        if self.body.is_empty() && self.is_pure {
             write!(fmt, "virtual ")?;
         }
 
         write!(fmt, "~{}(void)", self.name)?;
 
-        if self.is_default {
+        if self.body.is_empty() && self.is_default {
             return writeln!(fmt, " = default;");
         }
 
-        if self.is_delete {
+        if self.body.is_empty() && self.is_delete {
             return writeln!(fmt, " = delete;");
         }
 
@@ -605,14 +592,8 @@ impl Destructor {
             return writeln!(fmt, ";");
         }
 
-        writeln!(fmt, " {{")?;
-        fmt.indent(|f| {
-            for stmt in &self.body {
-                stmt.fmt(f)?;
-            }
-            Ok(())
-        })?;
-        writeln!(fmt, "}}\n")
+        fmt.block(|fmt| self.body.fmt(fmt))?;
+        writeln!(fmt)
     }
 
     /// formats the method definition

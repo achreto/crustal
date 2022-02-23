@@ -1,7 +1,9 @@
-# 0.1.5 ()
+# 0.1.5 (February 22, 2022)
 
  - adding methods to lookup parameters in functions / methods / constructors
  - conversion of attributes/variables/parameters to Expr::Variables
+ - adding of a `Block` to express function/loop bodies and branch arms
+ - Removal of `Stmt`
 
 # 0.1.4 (February 18, 2022)
 

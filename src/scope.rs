@@ -50,6 +50,7 @@ pub enum Item {
     Function(Function),
     Class(Class),
     Variable(Variable),
+    TypeDef(Type, String),
     NewLine,
 }
 
@@ -267,11 +268,19 @@ impl Scope {
         self
     }
 
+    ///
+    pub fn new_typedef(&mut self, name: &str, ty: Type) -> &mut Self {
+        self.items.push(Item::TypeDef(ty, String::from(name)));
+        self
+    }
+
     pub fn do_fmt(&self, fmt: &mut Formatter<'_>, only_decls: bool) -> fmt::Result {
         // documentation and license information
         self.doc.as_ref().map(|d| d.fmt(fmt));
+        writeln!(fmt)?;
 
         for item in self.items.iter() {
+            writeln!(fmt)?;
             match &item {
                 Item::Comment(v) => v.fmt(fmt)?,
                 Item::Include(v) => v.fmt(fmt)?,
@@ -283,6 +292,9 @@ impl Scope {
                 Item::Union(v) => v.fmt(fmt)?,
                 Item::Function(v) => v.do_fmt(fmt, only_decls)?,
                 Item::Class(v) => v.do_fmt(fmt, only_decls)?,
+                Item::TypeDef(ty, name) => {
+                    writeln!(fmt, "typedef {} {};", ty, name)?;
+                }
                 Item::NewLine => writeln!(fmt)?,
             }
         }

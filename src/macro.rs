@@ -51,8 +51,13 @@ pub struct Macro {
 impl Macro {
     /// Creates a new `Macro`
     pub fn new(name: &str) -> Self {
+        Self::with_name(String::from(name))
+    }
+
+    /// Creates a new `Macro` with the given name String
+    pub fn with_name(name: String) -> Self {
         Macro {
-            name: String::from(name),
+            name,
             args: Vec::new(),
             value: None,
             doc: None,
@@ -82,7 +87,7 @@ impl Macro {
     }
 
     /// adds the value to the macro
-    pub fn new_value(&mut self, value: &str) -> &mut Self {
+    pub fn set_value(&mut self, value: &str) -> &mut Self {
         self.value = Some(String::from(value));
         self
     }
@@ -92,20 +97,25 @@ impl Macro {
         if let Some(ref docs) = self.doc {
             docs.fmt(fmt)?;
         }
-        write!(fmt, "#define {}", self.name)?;
+        write!(fmt, "#define {} ", self.name)?;
         if !self.args.is_empty() {
-            let args = self.args.join(",");
+            let args = self.args.join(", ");
             write!(fmt, "({})", args)?;
         }
 
         if let Some(v) = &self.value {
             fmt.indent(|f| {
-                for l in v.lines() {
-                    writeln!(f, "{}\\", l)?;
+                for (i, l) in v.lines().enumerate() {
+                    if i != 0 {
+                        writeln!(f, "\\")?;
+                    }
+                    write!(f, "{}", l)?;
                 }
+                writeln!(f)?;
                 Ok(())
-            })?;
+            })
+        } else {
+            writeln!(fmt)
         }
-        writeln!(fmt)
     }
 }

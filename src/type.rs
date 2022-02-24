@@ -111,7 +111,7 @@ pub enum BaseType {
     /// a class with tempaltes
     TemplateClass(String, Vec<String>),
     /// a typedef `foo_t`
-    TypeDef(String),
+    TypeDef(String, bool),
 }
 
 impl BaseType {
@@ -145,7 +145,7 @@ impl BaseType {
                     write!(fmt, "{}", s)
                 }
             }
-            TypeDef(s) => write!(fmt, "{}", s),
+            TypeDef(s, _) => write!(fmt, "{}", s),
         }
     }
 
@@ -156,12 +156,12 @@ impl BaseType {
             | Int8  | Int16   | Int32   | Int64
             | Size  | UIntPtr | Bool    | Char
             // allowing the typedef here
-            | TypeDef(_))
+            | TypeDef(_, false))
     }
 
     pub fn is_struct(&self) -> bool {
         use BaseType::*;
-        matches!(self, Struct(_) | Union(_) | Class(_) | TemplateClass(_, _) | TypeDef(_))
+        matches!(self, Struct(_) | Union(_) | Class(_) | TemplateClass(_, _) | TypeDef(_, _))
     }
 
     /// creates a new unsigned integer type with a given type
@@ -364,7 +364,12 @@ impl Type {
 
     /// creates a new type for a given typedef
     pub fn new_typedef(name: &str) -> Self {
-        Type::new(BaseType::TypeDef(name.to_string()))
+        Type::new(BaseType::TypeDef(name.to_string(), false))
+    }
+
+    /// creates a new type for a given typedef
+    pub fn new_typedef_ptr(name: &str) -> Self {
+        Type::new(BaseType::TypeDef(name.to_string(), true))
     }
 
     /// creates a new type from `self` by taking a pointer of it.
@@ -467,11 +472,7 @@ impl Type {
         if self.nptr > 0 {
             return true;
         }
-        // typedefs may always be pointers
-        if let BaseType::TypeDef(_) = &self.base {
-            return true;
-        }
-        false
+        matches!(self.base, BaseType::TypeDef(_, true))
     }
 
     /// toggles whether the value of the type is volatile

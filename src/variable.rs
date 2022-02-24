@@ -197,17 +197,7 @@ impl Variable {
 
     /// Formats the variant using the given formatter.
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
-        if let Some(ref docs) = self.doc {
-            docs.fmt(fmt)?;
-        }
-        if self.is_extern {
-            write!(fmt, "extern ")?;
-        }
-        if self.is_static {
-            write!(fmt, "static ")?;
-        }
-        self.ty.fmt(fmt)?;
-        write!(fmt, " {}", self.name)
+        self.fmt_decl(fmt)
     }
 }
 

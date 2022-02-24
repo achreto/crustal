@@ -46,6 +46,7 @@ enum Item {
     GoTo(String),
     Label(String),
     Raw(String),
+    Expr(Expr),
     FnCall(String, Vec<Expr>),
     MethodCall(Expr, String, Vec<Expr>),
     Break,
@@ -219,6 +220,12 @@ impl Block {
         self
     }
 
+    /// adds a raw expression to the block
+    pub fn raw_expr(&mut self, expr: Expr) -> &mut Self {
+        self.items.push(Item::Expr(expr));
+        self
+    }
+
     /// return statement from a expression
     pub fn new_return(&mut self, expr: Option<&Expr>) -> &mut Self {
         if let Some(e) = expr {
@@ -279,6 +286,10 @@ impl Block {
                 Item::Break => writeln!(fmt, "break;")?,
                 Item::Continue => writeln!(fmt, "continue;")?,
                 Item::Raw(v) => writeln!(fmt, "{};", v)?,
+                Item::Expr(v) => {
+                    v.fmt(fmt)?;
+                    writeln!(fmt, ";")?;
+                }
                 Item::Label(v) => writeln!(fmt, "{}:", v)?,
                 Item::GoTo(v) => writeln!(fmt, "goto {};", v)?,
                 Item::Assign(l, r) => {
@@ -291,7 +302,7 @@ impl Block {
                 Item::ForLoop(v) => v.fmt(fmt)?,
                 Item::WhileLoop(v) => v.fmt(fmt)?,
                 Item::DoWhileLoop(v) => v.fmt(fmt)?,
-                Item::Variable(v) => v.fmt(fmt)?,
+                Item::Variable(v) => v.fmt_def(fmt)?,
                 Item::Return(None) => writeln!(fmt, "return;")?,
                 Item::Return(Some(v)) => {
                     write!(fmt, "return ")?;

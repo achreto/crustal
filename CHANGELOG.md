@@ -1,3 +1,6 @@
+# 0.2.0 (March 1, 2022)
+ - a few short hands for expression constructions
+
 # 0.1.7 (February 22, 2022)
 
  - make the blocks returned mutable so new elements can be added

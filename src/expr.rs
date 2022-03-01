@@ -111,6 +111,10 @@ impl Expr {
         }
     }
 
+    pub fn not(expr: Expr) -> Self {
+        Expr::uop("!", expr)
+    }
+
     pub fn binop(lhs: Expr, op: &str, rhs: Expr) -> Self {
         Expr::BinOp {
             lhs: Box::new(lhs),
@@ -140,6 +144,10 @@ impl Expr {
 
     pub fn addr_of(var: &Expr) -> Self {
         Expr::AddrOf(Box::new(var.clone()))
+    }
+
+    pub fn deref(var: &Expr) -> Self {
+        Expr::Deref(Box::new(var.clone()))
     }
 
     pub fn field_access(var: &Expr, field: &str) -> Self {

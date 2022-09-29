@@ -210,7 +210,7 @@ impl Expr {
         match self {
             Expr::Variable { name, .. } => write!(fmt, "{}", name),
             Expr::ConstString(x) => write!(fmt, "\"{}\"", x),
-            Expr::ConstNum(x) => write!(fmt, "{}", x),
+            Expr::ConstNum(x) => write!(fmt, "0x{:x}", x),
             Expr::ConstBool(true) => write!(fmt, "true"),
             Expr::ConstBool(false) => write!(fmt, "false"),
             Expr::FnCall { name, args } => {

@@ -114,7 +114,7 @@ impl Variant {
         }
         write!(fmt, "{}", self.name)?;
         if let Some(value) = self.value {
-            write!(fmt, " = {}", value)?;
+            write!(fmt, " = {value}")?;
         }
 
         Ok(())

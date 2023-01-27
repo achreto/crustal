@@ -119,7 +119,7 @@ impl Field {
         self.ty.fmt(fmt)?;
         write!(fmt, " {}", self.name)?;
         if let Some(w) = self.width {
-            write!(fmt, " : {}", w)?;
+            write!(fmt, " : {w}")?;
         }
         writeln!(fmt, ";")
     }
@@ -129,6 +129,6 @@ impl Display for Field {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut ret = String::new();
         self.fmt(&mut Formatter::new(&mut ret)).unwrap();
-        write!(f, "{}", ret)
+        write!(f, "{ret}")
     }
 }

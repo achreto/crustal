@@ -293,7 +293,7 @@ impl Scope {
                 Item::Function(v) => v.do_fmt(fmt, only_decls)?,
                 Item::Class(v) => v.do_fmt(fmt, only_decls)?,
                 Item::TypeDef(ty, name) => {
-                    writeln!(fmt, "typedef {} {};", ty, name)?;
+                    writeln!(fmt, "typedef {ty} {name};")?;
                 }
                 Item::NewLine => writeln!(fmt)?,
             }
@@ -339,6 +339,6 @@ impl fmt::Display for Scope {
             ret.pop();
         }
 
-        write!(f, "{}", ret)
+        write!(f, "{ret}")
     }
 }

@@ -85,7 +85,7 @@ impl Display for WhileLoop {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut ret = String::new();
         self.fmt(&mut Formatter::new(&mut ret)).unwrap();
-        write!(f, "{}", ret)
+        write!(f, "{ret}")
     }
 }
 
@@ -136,7 +136,7 @@ impl Display for DoWhileLoop {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut ret = String::new();
         self.fmt(&mut Formatter::new(&mut ret)).unwrap();
-        write!(f, "{}", ret)
+        write!(f, "{ret}")
     }
 }
 
@@ -229,6 +229,6 @@ impl Display for ForLoop {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut ret = String::new();
         self.fmt(&mut Formatter::new(&mut ret)).unwrap();
-        write!(f, "{}", ret)
+        write!(f, "{ret}")
     }
 }

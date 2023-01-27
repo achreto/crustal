@@ -100,7 +100,7 @@ impl Macro {
         write!(fmt, "#define {} ", self.name)?;
         if !self.args.is_empty() {
             let args = self.args.join(", ");
-            write!(fmt, "({})", args)?;
+            write!(fmt, "({args})")?;
         }
 
         if let Some(v) = &self.value {
@@ -109,7 +109,7 @@ impl Macro {
                     if i != 0 {
                         writeln!(f, "\\")?;
                     }
-                    write!(f, "{}", l)?;
+                    write!(f, "{l}")?;
                 }
                 writeln!(f)?;
                 Ok(())

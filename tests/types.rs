@@ -94,7 +94,7 @@ fn types_base_types() {
     ));
     assert_eq!(t.to_string(), "MyClass<MyOtherClass>");
 
-    let t = Type::new(BaseType::TypeDef(String::from("mytype_t")));
+    let t = Type::new(BaseType::TypeDef(String::from("mytype_t"), false));
     assert_eq!(t.to_string(), "mytype_t");
 }
 

@@ -90,7 +90,7 @@ impl Include {
         }
 
         if let Some(d) = &self.doc {
-            writeln!(fmt, "  // {}", d)
+            writeln!(fmt, "  // {d}")
         } else {
             writeln!(fmt)
         }

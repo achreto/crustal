@@ -103,7 +103,7 @@ impl Doc {
     /// formats the documentation block as a string.
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         for line in &self.docs {
-            writeln!(fmt, "/// {}", line)?;
+            writeln!(fmt, "/// {line}")?;
         }
         Ok(())
     }

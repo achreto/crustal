@@ -179,7 +179,7 @@ impl Variable {
             writeln!(fmt, ";")
         } else {
             if let Some(v) = &self.value {
-                write!(fmt, " = {}", v)?;
+                write!(fmt, " = {v}")?;
             }
             writeln!(fmt, ";")
         }
@@ -205,6 +205,6 @@ impl Display for Variable {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut ret = String::new();
         self.fmt(&mut Formatter::new(&mut ret)).unwrap();
-        write!(f, "{}", ret)
+        write!(f, "{ret}")
     }
 }

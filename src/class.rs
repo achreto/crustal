@@ -328,10 +328,10 @@ impl Display for Class {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut ret = String::new();
         self.fmt_def(&mut Formatter::new(&mut ret)).unwrap();
-        write!(f, "{}", ret)?;
+        write!(f, "{ret}")?;
 
         let mut ret = String::new();
         self.fmt_decl(&mut Formatter::new(&mut ret)).unwrap();
-        write!(f, "{}", ret)
+        write!(f, "{ret}")
     }
 }

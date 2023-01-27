@@ -79,7 +79,7 @@ impl<'a> Formatter<'a> {
             self.dst.push_str(s);
             self.dst.push_str("::");
         }
-        write!(self, "{}", name)
+        write!(self, "{name}")
     }
 
     /// Wraps the given function in a a C block. { ...}

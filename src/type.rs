@@ -63,7 +63,7 @@ impl Display for Visibility {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut ret = String::new();
         self.fmt(&mut Formatter::new(&mut ret)).unwrap();
-        write!(f, "{}", ret)
+        write!(f, "{ret}")
     }
 }
 
@@ -134,18 +134,18 @@ impl BaseType {
             Size => write!(fmt, "size_t"),
             UIntPtr => write!(fmt, "uintptr_t"),
             Bool => write!(fmt, "bool"),
-            Enum(s) => write!(fmt, "enum {}", s),
-            Struct(s) => write!(fmt, "struct {}", s),
-            Union(s) => write!(fmt, "union {}", s),
-            Class(s) => write!(fmt, "{}", s),
+            Enum(s) => write!(fmt, "enum {s}"),
+            Struct(s) => write!(fmt, "struct {s}"),
+            Union(s) => write!(fmt, "union {s}"),
+            Class(s) => write!(fmt, "{s}"),
             TemplateClass(s, t) => {
                 if !t.is_empty() {
                     write!(fmt, "{}<{}>", s, t.join(","))
                 } else {
-                    write!(fmt, "{}", s)
+                    write!(fmt, "{s}")
                 }
             }
-            TypeDef(s, _) => write!(fmt, "{}", s),
+            TypeDef(s, _) => write!(fmt, "{s}"),
         }
     }
 
@@ -173,7 +173,7 @@ impl BaseType {
             32 => UInt32,
             64 => UInt64,
             _ => {
-                println!("Unsupported integer size: {}. Defaulting to u64", bits);
+                println!("Unsupported integer size: {bits}. Defaulting to u64");
                 UInt64
             }
         }
@@ -187,7 +187,7 @@ impl BaseType {
             32 => Int32,
             64 => Int64,
             _ => {
-                println!("Unsupported integer size: {}. Defaulting to i64", bits);
+                println!("Unsupported integer size: {bits}. Defaulting to i64");
                 Int64
             }
         }
@@ -198,7 +198,7 @@ impl Display for BaseType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut ret = String::new();
         self.fmt(&mut Formatter::new(&mut ret)).unwrap();
-        write!(f, "{}", ret)
+        write!(f, "{ret}")
     }
 }
 
@@ -577,6 +577,6 @@ impl Display for Type {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut ret = String::new();
         self.fmt(&mut Formatter::new(&mut ret)).unwrap();
-        write!(f, "{}", ret)
+        write!(f, "{ret}")
     }
 }

@@ -285,13 +285,13 @@ impl Block {
                 Item::NewLine => writeln!(fmt)?,
                 Item::Break => writeln!(fmt, "break;")?,
                 Item::Continue => writeln!(fmt, "continue;")?,
-                Item::Raw(v) => writeln!(fmt, "{};", v)?,
+                Item::Raw(v) => writeln!(fmt, "{v};")?,
                 Item::Expr(v) => {
                     v.fmt(fmt)?;
                     writeln!(fmt, ";")?;
                 }
-                Item::Label(v) => writeln!(fmt, "{}:", v)?,
-                Item::GoTo(v) => writeln!(fmt, "goto {};", v)?,
+                Item::Label(v) => writeln!(fmt, "{v}:")?,
+                Item::GoTo(v) => writeln!(fmt, "goto {v};")?,
                 Item::Assign(l, r) => {
                     l.fmt(fmt)?;
                     write!(fmt, " = ")?;
@@ -310,7 +310,7 @@ impl Block {
                     writeln!(fmt, ";")?
                 }
                 Item::FnCall(name, args) => {
-                    write!(fmt, "{}(", name)?;
+                    write!(fmt, "{name}(")?;
                     for (i, arg) in args.iter().enumerate() {
                         if i > 0 {
                             write!(fmt, ", ")?;
@@ -322,9 +322,9 @@ impl Block {
                 Item::MethodCall(obj, method, args) => {
                     obj.fmt(fmt)?;
                     if obj.is_ptr() {
-                        write!(fmt, "->{}(", method)?;
+                        write!(fmt, "->{method}(")?;
                     } else {
-                        write!(fmt, ".{}(", method)?;
+                        write!(fmt, ".{method}(")?;
                     }
 
                     for (i, arg) in args.iter().enumerate() {
@@ -352,6 +352,6 @@ impl fmt::Display for Block {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut ret = String::new();
         self.fmt(&mut Formatter::new(&mut ret)).unwrap();
-        write!(f, "{}", ret)
+        write!(f, "{ret}")
     }
 }

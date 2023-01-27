@@ -93,7 +93,7 @@ impl Comment {
         writeln!(fmt)?;
         self.push_heading(fmt)?;
         for line in self.comment.lines() {
-            writeln!(fmt, "// {}", line)?;
+            writeln!(fmt, "// {line}")?;
         }
         self.push_heading(fmt)
     }

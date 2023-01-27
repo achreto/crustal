@@ -106,7 +106,7 @@ impl Display for FunctionParam {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut ret = String::new();
         self.fmt(&mut Formatter::new(&mut ret)).unwrap();
-        write!(f, "{}", ret)
+        write!(f, "{ret}")
     }
 }
 
@@ -187,7 +187,7 @@ impl MethodParam {
         write!(fmt, " {}", self.name)?;
         if let Some(s) = &self.default {
             if decl_only {
-                write!(fmt, " = {}", s)?;
+                write!(fmt, " = {s}")?;
             }
         }
         Ok(())
@@ -203,6 +203,6 @@ impl Display for MethodParam {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut ret = String::new();
         self.fmt(&mut Formatter::new(&mut ret)).unwrap();
-        write!(f, "{}", ret)
+        write!(f, "{ret}")
     }
 }

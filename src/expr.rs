@@ -208,13 +208,13 @@ impl Expr {
 
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         match self {
-            Expr::Variable { name, .. } => write!(fmt, "{}", name),
-            Expr::ConstString(x) => write!(fmt, "\"{}\"", x),
-            Expr::ConstNum(x) => write!(fmt, "0x{:x}", x),
+            Expr::Variable { name, .. } => write!(fmt, "{name}"),
+            Expr::ConstString(x) => write!(fmt, "\"{x}\""),
+            Expr::ConstNum(x) => write!(fmt, "0x{x:x}"),
             Expr::ConstBool(true) => write!(fmt, "true"),
             Expr::ConstBool(false) => write!(fmt, "false"),
             Expr::FnCall { name, args } => {
-                write!(fmt, "{}(", name)?;
+                write!(fmt, "{name}(")?;
                 for (i, v) in args.iter().enumerate() {
                     if i != 0 {
                         write!(fmt, ", ")?;
@@ -236,17 +236,17 @@ impl Expr {
             Expr::FieldAccess { var, field, .. } => {
                 var.as_ref().fmt(fmt)?;
                 if var.is_ptr() {
-                    write!(fmt, "->{}", field)
+                    write!(fmt, "->{field}")
                 } else {
-                    write!(fmt, ".{}", field)
+                    write!(fmt, ".{field}")
                 }
             }
             Expr::MethodCall { var, method, args, .. } => {
                 var.as_ref().fmt(fmt)?;
                 if var.is_ptr() {
-                    write!(fmt, "->{}(", method)?;
+                    write!(fmt, "->{method}(")?;
                 } else {
-                    write!(fmt, ".{}(", method)?;
+                    write!(fmt, ".{method}(")?;
                 }
                 for (i, v) in args.iter().enumerate() {
                     if i != 0 {
@@ -259,16 +259,16 @@ impl Expr {
             Expr::BinOp { lhs, rhs, op } => {
                 write!(fmt, "(")?;
                 lhs.as_ref().fmt(fmt)?;
-                write!(fmt, " {} ", op)?;
+                write!(fmt, " {op} ")?;
                 rhs.as_ref().fmt(fmt)?;
                 write!(fmt, ")")
             }
             Expr::UnOp { expr, op } => {
-                write!(fmt, "{}(", op)?;
+                write!(fmt, "{op}(")?;
                 expr.as_ref().fmt(fmt)?;
                 write!(fmt, ")")
             }
-            Expr::Raw(s) => write!(fmt, "{}", s),
+            Expr::Raw(s) => write!(fmt, "{s}"),
         }
     }
 }
@@ -277,6 +277,6 @@ impl Display for Expr {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut ret = String::new();
         self.fmt(&mut Formatter::new(&mut ret)).unwrap();
-        write!(f, "{}", ret)
+        write!(f, "{ret}")
     }
 }

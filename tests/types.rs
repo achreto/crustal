@@ -143,6 +143,6 @@ fn types_modifiers_deref() {
     assert_eq!(t.to_string(), "const int32_t * const * * const");
 
     let t2 = t.to_deref();
-    assert!(!t2.is_none());
+    assert!(t2.is_some());
     assert_eq!(t2.unwrap().to_string(), "const int32_t * const *");
 }

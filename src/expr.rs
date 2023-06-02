@@ -76,6 +76,12 @@ pub enum Expr {
         expr: Box<Expr>,
         op: String,
     },
+    /// represents a conditional ternary expression: `cond ? then : other`
+    Ternary {
+        cond: Box<Expr>,
+        then: Box<Expr>,
+        other: Box<Expr>,
+    },
     /// represents a raw expression token
     Raw(String),
 }
@@ -120,6 +126,14 @@ impl Expr {
             lhs: Box::new(lhs),
             rhs: Box::new(rhs),
             op: op.to_string(),
+        }
+    }
+
+    pub fn ternary(cond: Expr, then: Expr, other: Expr) -> Self {
+        Expr::Ternary {
+            cond: Box::new(cond),
+            then: Box::new(then),
+            other: Box::new(other)
         }
     }
 
@@ -266,6 +280,15 @@ impl Expr {
             Expr::UnOp { expr, op } => {
                 write!(fmt, "{op}(")?;
                 expr.as_ref().fmt(fmt)?;
+                write!(fmt, ")")
+            }
+            Expr::Ternary { cond, then, other } => {
+                write!(fmt, "(")?;
+                cond.as_ref().fmt(fmt)?;
+                write!(fmt, ") ? (")?;
+                then.as_ref().fmt(fmt)?;
+                write!(fmt, ") : (")?;
+                other.as_ref().fmt(fmt)?;
                 write!(fmt, ")")
             }
             Expr::Raw(s) => write!(fmt, "{s}"),

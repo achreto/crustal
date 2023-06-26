@@ -133,7 +133,7 @@ impl Expr {
         Expr::Ternary {
             cond: Box::new(cond),
             then: Box::new(then),
-            other: Box::new(other)
+            other: Box::new(other),
         }
     }
 

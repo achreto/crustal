@@ -117,7 +117,7 @@ impl Expr {
         }
     }
 
-    pub fn not(expr: Expr) -> Self {
+    pub fn lnot(expr: Expr) -> Self {
         Expr::uop("!", expr)
     }
 

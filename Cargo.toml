@@ -1,6 +1,6 @@
 [package]
 name = "crustal"
-version = "0.2.0"
+version = "0.3.0"
 license = "MIT"
 authors = ["Reto Achermann <achreto@gmail.com>"]
 description = "A library for generating C/C++ code."

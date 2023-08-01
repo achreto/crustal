@@ -72,7 +72,7 @@ impl WhileLoop {
         write!(fmt, "while (")?;
         self.cond.fmt(fmt)?;
         writeln!(fmt, ") ")?;
-        if self.body.is_empty() {
+        if !self.body.is_empty() {
             fmt.block(|f| self.body.fmt(f))?;
             writeln!(fmt)
         } else {

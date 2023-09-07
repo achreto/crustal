@@ -43,6 +43,13 @@ pub enum Expr {
     ConstNum(u64),
     ConstString(String),
     ConstBool(bool),
+    NewObject {
+        name: String,
+        args: Vec<Expr>,
+    },
+    DeleteObject {
+        var: Box<Expr>,
+    },
     /// represents a function call
     FnCall {
         name: String,
@@ -156,6 +163,17 @@ impl Expr {
         }
     }
 
+    pub fn new(class: &str, args: Vec<Expr>) -> Self {
+        Expr::NewObject {
+            name: class.to_string(),
+            args,
+        }
+    }
+
+    pub fn delete(var: Expr) -> Self {
+        Expr::DeleteObject { var: Box::new(var) }
+    }
+
     pub fn addr_of(var: &Expr) -> Self {
         Expr::AddrOf(Box::new(var.clone()))
     }
@@ -206,6 +224,7 @@ impl Expr {
             }
             Expr::AddrOf(_) => true,
             Expr::Raw(_) => true,
+            Expr::NewObject { .. } => true,
             Expr::MethodCall { is_ptr, .. } => *is_ptr,
             Expr::FieldAccess { is_ptr, .. } => *is_ptr,
             _ => false,
@@ -215,6 +234,7 @@ impl Expr {
     pub fn is_struct(&self) -> bool {
         match self {
             Expr::Variable { ty, .. } => ty.is_struct(),
+            Expr::NewObject { .. } => true,
             Expr::Raw(_) => true,
             _ => false,
         }
@@ -290,6 +310,19 @@ impl Expr {
                 write!(fmt, ") : (")?;
                 other.as_ref().fmt(fmt)?;
                 write!(fmt, ")")
+            }
+            Expr::NewObject { name, args } => {
+                write!(fmt, "new {}(", name)?;
+                for (i, arg) in args.iter().enumerate() {
+                    if i > 0 {
+                        write!(fmt, ", ")?;
+                    }
+                    write!(fmt, "{}", arg)?;
+                }
+                write!(fmt, ")")
+            }
+            Expr::DeleteObject { var } => {
+                write!(fmt, "delete[] {}", var)
             }
             Expr::Raw(s) => write!(fmt, "{s}"),
         }

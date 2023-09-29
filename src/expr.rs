@@ -163,6 +163,13 @@ impl Expr {
         }
     }
 
+    pub fn null() -> Self {
+        Expr::Variable {
+            name: "NULL".to_string(),
+            ty: Type::to_ptr(&Type::new(BaseType::Void)),
+        }
+    }
+
     pub fn new(class: &str, args: Vec<Expr>) -> Self {
         Expr::NewObject {
             name: class.to_string(),

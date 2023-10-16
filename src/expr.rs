@@ -64,8 +64,10 @@ pub enum Expr {
     },
     /// represents the dereference operator `*(Expr)`
     Deref(Box<Expr>),
-    /// represents the address of operationr: `&(Expr)`
+    /// represents the address of operation: `&(Expr)`
     AddrOf(Box<Expr>),
+    /// represents the size of operation: `sizeof(Expr)`
+    SizeOf(Box<Expr>),
     /// accesses the field
     FieldAccess {
         var: Box<Expr>,
@@ -136,6 +138,10 @@ impl Expr {
         }
     }
 
+    pub fn land(lhs: Expr, rhs: Expr) -> Self {
+        Self::binop(lhs, "&&", rhs)
+    }
+
     pub fn ternary(cond: Expr, then: Expr, other: Expr) -> Self {
         Expr::Ternary {
             cond: Box::new(cond),
@@ -183,6 +189,10 @@ impl Expr {
 
     pub fn addr_of(var: &Expr) -> Self {
         Expr::AddrOf(Box::new(var.clone()))
+    }
+
+    pub fn size_of(var: &Expr) -> Self {
+        Expr::SizeOf(Box::new(var.clone()))
     }
 
     pub fn deref(var: &Expr) -> Self {
@@ -271,6 +281,11 @@ impl Expr {
             }
             Expr::AddrOf(e) => {
                 write!(fmt, "&(")?;
+                e.as_ref().fmt(fmt)?;
+                write!(fmt, ")")
+            }
+            Expr::SizeOf(e) => {
+                write!(fmt, "sizeof(")?;
                 e.as_ref().fmt(fmt)?;
                 write!(fmt, ")")
             }

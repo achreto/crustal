@@ -228,6 +228,8 @@ pub struct Type {
     is_const: bool,
     /// whether the type is volatile
     is_volatile: bool,
+    /// the size of the array
+    array_size: usize,
 }
 
 impl TypeModifier {
@@ -252,6 +254,7 @@ impl Type {
             nptr: 0,
             is_volatile: false,
             is_const: false,
+            array_size: 0,
         }
     }
 
@@ -444,6 +447,16 @@ impl Type {
         self
     }
 
+    /// creates a new type from `self` by converting it to an array
+    ///
+    /// # Example
+    ///
+    /// `int *` => `int * foo[nelemens]`
+    pub fn to_array(mut self, nelems: usize) -> Self {
+        self.array_size = nelems;
+        self
+    }
+
     /// obtainst the base type of the type
     pub fn basetype(&self) -> &BaseType {
         &self.base
@@ -469,10 +482,16 @@ impl Type {
     ///
     /// Note: if the type is a typedef, this will return true.
     pub fn is_ptr(&self) -> bool {
-        if self.nptr > 0 {
-            return true;
-        }
-        matches!(self.base, BaseType::TypeDef(_, true))
+        self.nptr > 0 || self.array_size != 0 || matches!(self.base, BaseType::TypeDef(_, true))
+    }
+
+    /// returns true if the type represents an array value
+    pub fn is_array(&self) -> bool {
+        self.array_size != 0
+    }
+
+    pub fn get_array_size(&self) -> usize {
+        self.array_size
     }
 
     /// toggles whether the value of the type is volatile

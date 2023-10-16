@@ -121,6 +121,9 @@ impl Field {
         if let Some(w) = self.width {
             write!(fmt, " : {w}")?;
         }
+        if self.ty.is_array() {
+            write!(fmt, "[{}]", self.ty.get_array_size())?;
+        }
         writeln!(fmt, ";")
     }
 }

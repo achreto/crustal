@@ -30,7 +30,9 @@
 // std includes
 use std::fmt::{self, Write};
 
-use crate::{Comment, DoWhileLoop, Expr, ForLoop, Formatter, IfElse, Type, Variable, WhileLoop};
+use crate::{
+    Comment, DoWhileLoop, Expr, ForLoop, Formatter, IfElse, Switch, Type, Variable, WhileLoop,
+};
 
 /// defines an item of the scope
 #[derive(Debug, Clone)]
@@ -52,6 +54,7 @@ enum Item {
     Break,
     Continue,
     NewLine,
+    Switch(Switch),
 }
 
 /// defines the scope of the generated C code
@@ -156,6 +159,22 @@ impl Block {
     /// adds an ifelse conditional to the block
     pub fn ifelse(&mut self, s: IfElse) -> &mut Self {
         self.items.push(Item::IfElse(s));
+        self
+    }
+
+    /// adds a new switch statement to the block
+    pub fn new_switch(&mut self, cond: &Expr) -> &mut Switch {
+        let ifelse = Switch::new(cond);
+        self.items.push(Item::Switch(ifelse));
+        match *self.items.last_mut().unwrap() {
+            Item::Switch(ref mut v) => v,
+            _ => unreachable!(),
+        }
+    }
+
+    /// adds an Switch statement to the block
+    pub fn switch(&mut self, s: Switch) -> &mut Self {
+        self.items.push(Item::Switch(s));
         self
     }
 
@@ -299,6 +318,7 @@ impl Block {
                     writeln!(fmt, ";")?;
                 }
                 Item::IfElse(v) => v.fmt(fmt)?,
+                Item::Switch(v) => v.fmt(fmt)?,
                 Item::ForLoop(v) => v.fmt(fmt)?,
                 Item::WhileLoop(v) => v.fmt(fmt)?,
                 Item::DoWhileLoop(v) => v.fmt(fmt)?,

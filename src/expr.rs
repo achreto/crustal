@@ -74,6 +74,11 @@ pub enum Expr {
         field: String,
         is_ptr: bool,
     },
+    ArrayElementAccess {
+        var: Box<Expr>,
+        idx: Box<Expr>,
+        is_ptr: bool,
+    },
     /// represents a binary opreation: `a + b`
     BinOp {
         lhs: Box<Expr>,
@@ -207,6 +212,14 @@ impl Expr {
         }
     }
 
+    pub fn array_access(var: &Expr, idx: &Expr) -> Self {
+        Expr::ArrayElementAccess {
+            var: Box::new(var.clone()),
+            idx: Box::new(idx.clone()),
+            is_ptr: false,
+        }
+    }
+
     /// TODO: add type information here!
     pub fn method_call(var: &Expr, method: &str, args: Vec<Expr>) -> Self {
         Expr::MethodCall {
@@ -225,11 +238,17 @@ impl Expr {
     }
 
     pub fn set_ptr(&mut self) {
-        if let Expr::MethodCall { is_ptr, .. } = self {
-            *is_ptr = true;
-        }
-        if let Expr::FieldAccess { is_ptr, .. } = self {
-            *is_ptr = true;
+        match self {
+            Expr::MethodCall { is_ptr, .. } => {
+                *is_ptr = true;
+            }
+            Expr::FieldAccess { is_ptr, .. } => {
+                *is_ptr = true;
+            }
+            Expr::ArrayElementAccess { is_ptr, .. } => {
+                *is_ptr = true;
+            }
+            _ => (),
         }
     }
 
@@ -244,6 +263,7 @@ impl Expr {
             Expr::NewObject { .. } => true,
             Expr::MethodCall { is_ptr, .. } => *is_ptr,
             Expr::FieldAccess { is_ptr, .. } => *is_ptr,
+            Expr::ArrayElementAccess { is_ptr, .. } => *is_ptr,
             _ => false,
         }
     }
@@ -296,6 +316,10 @@ impl Expr {
                 } else {
                     write!(fmt, ".{field}")
                 }
+            }
+            Expr::ArrayElementAccess { var, idx, is_ptr: _ } => {
+                var.as_ref().fmt(fmt)?;
+                write!(fmt, "[{idx}]")
             }
             Expr::MethodCall { var, method, args, .. } => {
                 var.as_ref().fmt(fmt)?;

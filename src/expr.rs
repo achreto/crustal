@@ -96,6 +96,10 @@ pub enum Expr {
         then: Box<Expr>,
         other: Box<Expr>,
     },
+    Cast {
+        expr: Box<Expr>,
+        ty: Type,
+    },
     /// represents a raw expression token
     Raw(String),
 }
@@ -192,21 +196,21 @@ impl Expr {
         Expr::DeleteObject { var: Box::new(var) }
     }
 
-    pub fn addr_of(var: &Expr) -> Self {
-        Expr::AddrOf(Box::new(var.clone()))
+    pub fn addr_of(&self) -> Self {
+        Expr::AddrOf(Box::new(self.clone()))
     }
 
-    pub fn size_of(var: &Expr) -> Self {
-        Expr::SizeOf(Box::new(var.clone()))
+    pub fn size_of(&self) -> Self {
+        Expr::SizeOf(Box::new(self.clone()))
     }
 
-    pub fn deref(var: &Expr) -> Self {
-        Expr::Deref(Box::new(var.clone()))
+    pub fn deref(&self) -> Self {
+        Expr::Deref(Box::new(self.clone()))
     }
 
-    pub fn field_access(var: &Expr, field: &str) -> Self {
+    pub fn field_access(&self, field: &str) -> Self {
         Expr::FieldAccess {
-            var: Box::new(var.clone()),
+            var: Box::new(self.clone()),
             field: field.to_string(),
             is_ptr: false,
         }
@@ -237,6 +241,10 @@ impl Expr {
         }
     }
 
+    pub fn cast_to(self, ty: Type) -> Self {
+        Expr::Cast { expr: Box::new(self), ty }
+    }
+
     pub fn set_ptr(&mut self) {
         match self {
             Expr::MethodCall { is_ptr, .. } => {
@@ -255,15 +263,14 @@ impl Expr {
     pub fn is_ptr(&self) -> bool {
         match self {
             Expr::Variable { ty, .. } => ty.is_ptr(),
-            Expr::Deref(_e) => {
-                panic!("handle me!");
-            }
+            Expr::Deref(e) => e.is_ptr(),
             Expr::AddrOf(_) => true,
             Expr::Raw(_) => true,
             Expr::NewObject { .. } => true,
             Expr::MethodCall { is_ptr, .. } => *is_ptr,
             Expr::FieldAccess { is_ptr, .. } => *is_ptr,
             Expr::ArrayElementAccess { is_ptr, .. } => *is_ptr,
+            Expr::Cast { ty, .. } => ty.is_ptr(),
             _ => false,
         }
     }
@@ -271,6 +278,7 @@ impl Expr {
     pub fn is_struct(&self) -> bool {
         match self {
             Expr::Variable { ty, .. } => ty.is_struct(),
+            Expr::Cast { ty, .. } => ty.is_struct(),
             Expr::NewObject { .. } => true,
             Expr::Raw(_) => true,
             _ => false,
@@ -310,7 +318,7 @@ impl Expr {
                 write!(fmt, ")")
             }
             Expr::FieldAccess { var, field, .. } => {
-                var.as_ref().fmt(fmt)?;
+                write!(fmt, "({})", var.as_ref())?;
                 if var.is_ptr() {
                     write!(fmt, "->{field}")
                 } else {
@@ -369,6 +377,9 @@ impl Expr {
             }
             Expr::DeleteObject { var } => {
                 write!(fmt, "delete[] {}", var)
+            }
+            Expr::Cast { expr, ty } => {
+                write!(fmt, "({ty})({expr})")
             }
             Expr::Raw(s) => write!(fmt, "{s}"),
         }

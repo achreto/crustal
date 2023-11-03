@@ -241,8 +241,11 @@ impl Expr {
         }
     }
 
-    pub fn cast_to(self, ty: Type) -> Self {
-        Expr::Cast { expr: Box::new(self), ty }
+    pub fn cast_to(&self, ty: Type) -> Self {
+        Expr::Cast {
+            expr: Box::new(self.clone()),
+            ty,
+        }
     }
 
     pub fn set_ptr(&mut self) {

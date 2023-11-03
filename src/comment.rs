@@ -90,7 +90,7 @@ impl Comment {
 
     // formats the comment block
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
-        writeln!(fmt)?;
+        // writeln!(fmt)?;
         self.push_heading(fmt)?;
         for line in self.comment.lines() {
             writeln!(fmt, "// {line}")?;

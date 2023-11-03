@@ -92,7 +92,7 @@ impl IfElse {
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         write!(fmt, "if (")?;
         self.cond.fmt(fmt)?;
-        writeln!(fmt, ") ")?;
+        write!(fmt, ")")?;
         fmt.block(|f| self.then.fmt(f))?;
         if !self.other.is_empty() {
             write!(fmt, " else ")?;

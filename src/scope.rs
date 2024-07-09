@@ -268,7 +268,7 @@ impl Scope {
         self
     }
 
-    ///
+    /// adds a new typedef to the scope
     pub fn new_typedef(&mut self, name: &str, ty: Type) -> &mut Self {
         self.items.push(Item::TypeDef(ty, String::from(name)));
         self

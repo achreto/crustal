@@ -121,7 +121,7 @@ impl<'a> Formatter<'a> {
     }
 }
 
-impl<'a> fmt::Write for Formatter<'a> {
+impl fmt::Write for Formatter<'_> {
     fn write_str(&mut self, s: &str) -> fmt::Result {
         let mut first = true;
         let mut should_indent = self.is_start_of_line();

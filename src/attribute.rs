@@ -222,6 +222,10 @@ impl Attribute {
 
         self.ty.fmt(fmt)?;
         write!(fmt, " {}", self.name)?;
+
+        if self.ty.is_array() {
+            write!(fmt, "[{}]", self.ty.get_array_size())?;
+        }
         if let Some(w) = self.width {
             write!(fmt, " : {w}")?;
         }
@@ -246,6 +250,11 @@ impl Attribute {
 
         self.ty.fmt(fmt)?;
         write!(fmt, " {}", self.name)?;
+
+        if self.ty.is_array() {
+            write!(fmt, "[{}]", self.ty.get_array_size())?;
+        }
+
         if let Some(w) = self.width {
             write!(fmt, " : {w}")?;
         }
@@ -269,6 +278,9 @@ impl Attribute {
 
         self.ty.fmt(fmt)?;
         write!(fmt, " {}", self.name)?;
+        if self.ty.is_array() {
+            write!(fmt, "[{}]", self.ty.get_array_size())?;
+        }
         if let Some(w) = self.width {
             write!(fmt, " : {w}")?;
         }

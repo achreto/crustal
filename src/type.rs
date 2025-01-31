@@ -333,6 +333,14 @@ impl Type {
         Type::new(BaseType::UIntPtr)
     }
 
+    pub fn new_float() -> Self {
+        Type::new(BaseType::Float)
+    }
+
+    pub fn new_double() -> Self {
+        Type::new(BaseType::Double)
+    }
+
     /// creates a new type description for the C++ `std::string`
     pub fn new_std_string() -> Self {
         Type::new_class("std::string")
